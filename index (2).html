@@ -1,0 +1,1025 @@
+<!doctype html><html lang="nl"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Koppelhulp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: werkbank — invoer bovenaan, statusregel, tabbladen met groepskaarten en een bewerkbare producttabel */
+:root{
+  --bg:#F3F5F3; --surface:#FFFFFF; --sunk:#E9EDEA; --fg:#18201C; --muted:#5B6760; --line:#D6DDD8;
+  --accent:#2C5E4F; --accent-soft:#DCEAE4; --accent-fg:#FFFFFF;
+  --warn:#9A6408; --warn-soft:#FBEFD5; --ok:#2F7A46; --ok-soft:#DDF0E2;
+  --f-display:"Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --f-body:"Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121815; --surface:#1A221E; --sunk:#0E1311; --fg:#E4EAE6; --muted:#9AA8A0; --line:#2C3832;
+  --accent:#7BC2A8; --accent-soft:#1F3A30; --accent-fg:#0E1311;
+  --warn:#E9B15A; --warn-soft:#3A2D14; --ok:#7FCB95; --ok-soft:#183223; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121815; --surface:#1A221E; --sunk:#0E1311; --fg:#E4EAE6; --muted:#9AA8A0; --line:#2C3832;
+  --accent:#7BC2A8; --accent-soft:#1F3A30; --accent-fg:#0E1311;
+  --warn:#E9B15A; --warn-soft:#3A2D14; --ok:#7FCB95; --ok-soft:#183223; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:22px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:2rem;font-weight:700}
+.lead{color:var(--muted);max-width:68ch;margin:6px 0 0}
+.mono{font-family:var(--f-mono);font-size:.82em}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.input-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:18px}
+@media (max-width:820px){.input-grid{grid-template-columns:1fr}}
+label{font-weight:600;font-size:.88rem;display:block;margin-bottom:6px}
+textarea{width:100%;font-family:var(--f-mono);font-size:12.5px;line-height:1.45;color:var(--fg);background:var(--sunk);
+  border:1px solid var(--line);border-radius:6px;padding:10px;resize:vertical}
+.txt{width:100%;font:inherit;font-size:.9rem;color:var(--fg);background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:7px 10px}
+textarea:focus,input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.hint{font-size:.8rem;color:var(--muted);margin:6px 0 0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.settings{display:grid;gap:14px;align-content:start}
+.check{display:flex;gap:8px;align-items:flex-start;font-weight:500;font-size:.9rem}
+.check input{margin-top:4px;accent-color:var(--accent)}
+button{font-family:var(--f-body);font-size:.88rem;font-weight:600;border-radius:6px;padding:8px 14px;cursor:pointer;
+  border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+button:hover{border-color:var(--muted)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+button.small{padding:4px 10px;font-size:.8rem}
+.notice{background:var(--accent-soft);border-radius:6px;padding:10px 14px;font-size:.88rem}
+.stats{display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline;padding:14px 18px}
+.stat b{font-family:var(--f-display);font-size:1.5rem;font-variant-numeric:tabular-nums;margin-right:6px}
+.stat span{color:var(--muted);font-size:.88rem}
+.stat.warn b{color:var(--warn)} .stat.ok b{color:var(--ok)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{border:0;border-bottom:2px solid transparent;border-radius:0;background:none;padding:10px 14px;color:var(--muted);white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+.tab .n{font-family:var(--f-mono);font-size:.75rem;background:var(--sunk);border-radius:10px;padding:1px 7px;margin-left:6px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin:14px 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:10px;align-content:start}
+.card.approved{border-color:var(--ok);box-shadow:inset 0 0 0 1px var(--ok)}
+.card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.card-head h3{font-size:1.05rem;font-weight:600}
+.gid{color:var(--muted);word-break:break-all}
+.meta{font-size:.82rem;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--sunk);border-radius:20px;padding:3px 10px 3px 5px;font-size:.82rem}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.sw{width:14px;height:14px;border-radius:50%;border:1px solid rgba(128,128,128,.45);flex:none;
+  background:repeating-linear-gradient(45deg,var(--line) 0 3px,transparent 3px 6px)}
+.items{margin:0;padding:0;list-style:none;display:grid;gap:4px;font-size:.88rem}
+.items li{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding-bottom:4px}
+.items li:last-child{border-bottom:0}
+.approve[aria-pressed="true"]{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.issue-list{display:grid;gap:8px}
+.issue{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:6px;padding:10px 14px;
+  display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center}
+.issue .why{color:var(--warn);font-size:.85rem}
+.issue.single{border-left-color:var(--line)}
+.issue.single .why{color:var(--muted)}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.84rem;min-width:980px}
+th{position:sticky;top:0;background:var(--sunk);text-align:left;font-weight:600;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:4px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr.flag td{background:var(--warn-soft)}
+td.title{min-width:280px}
+td input{width:100%;min-width:80px;font:inherit;color:var(--fg);background:transparent;border:1px solid transparent;border-radius:4px;padding:4px 6px}
+td input:hover{border-color:var(--line)}
+td input:focus{background:var(--surface)}
+td.gcell{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);white-space:nowrap}
+.empty{color:var(--muted);padding:24px;text-align:center;border:1px dashed var(--line);border-radius:var(--r)}
+.map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:12px}
+.map{display:grid;gap:4px;margin:0;min-width:0}
+.map .ex{display:block;font-weight:400;font-size:.75rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+select{font:inherit;font-size:.88rem;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%}
+select:focus{outline:2px solid var(--accent);outline-offset:1px}
+.where{display:grid;gap:12px}
+.manual{display:grid;gap:14px}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.mbox{display:grid;gap:8px;align-content:start;border:1px solid var(--line);border-radius:var(--r);padding:12px;min-width:0}
+.mbox h3{font-size:1rem;font-weight:600}
+.mrow{display:grid;grid-template-columns:minmax(0,10rem) minmax(0,1fr);gap:8px}
+@media (max-width:520px){.mrow{grid-template-columns:1fr}}
+.mlist{display:grid;gap:6px;font-size:.88rem;border-top:1px solid var(--line);padding-top:10px}
+.pick{display:flex;align-items:center;margin:0;padding-right:4px}
+.pick input{width:18px;height:18px;accent-color:var(--accent)}
+.issue{flex-wrap:nowrap}
+@media (max-width:520px){.issue{flex-wrap:wrap}}
+.csvprev{margin:0;background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:.75rem;line-height:1.5;overflow-x:auto;white-space:pre;color:var(--fg)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--sunk)}
+.bar span{display:block;min-width:2px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:.88rem}
+.legend .it{display:inline-flex;align-items:center;gap:7px}
+.legend b{font-variant-numeric:tabular-nums}
+.dot{width:10px;height:10px;border-radius:3px;flex:none}
+.c-kv{background:var(--accent)} .c-si{background:color-mix(in srgb,var(--accent) 45%,var(--surface))}
+.c-var{background:var(--line)} .c-check{background:var(--warn)} .c-alone{background:var(--muted)}
+.linkbtn{border:0;background:none;padding:0;color:var(--accent);text-decoration:underline;font-weight:600;font-size:inherit;cursor:pointer}
+details.export summary{cursor:pointer;font-weight:600}
+h2{font-size:1.25rem}
+.section-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+@media (prefers-reduced-motion:no-preference){.card,.issue{transition:border-color .15s,box-shadow .15s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Prototype · productkoppelingen</div>
+    <h1>Koppelhulp</h1>
+    <p class="lead">Plak een productlijst en krijg direct de kleurvarianten (keuzemenu) en serie-items in dezelfde kleur (fotorij). Controleer, keur goed en kopieer het resultaat naar Excel voor import.</p>
+  </header>
+
+  <section class="panel">
+    <div class="input-grid">
+      <div>
+        <label for="input">Productlijst</label>
+        <textarea id="input" rows="9" spellcheck="false" placeholder="Plak hier een gekopieerde merkpagina van fonq, een lijst met producttitels (één per regel) of een tabel uit Excel met een kolom 'Titel' (en eventueel 'ID' of 'EAN')."></textarea>
+        <p class="hint">Werkt met: een tabel uit Excel (met kopregel), een gekopieerde merkpagina of één titel per regel. Een geplakte tabel vervangt automatisch wat er al stond en wordt meteen geanalyseerd.</p>
+        <div class="row" style="margin-top:10px">
+          <button class="primary" id="run">Analyseren</button>
+          <button id="sample">Voorbeeld laden</button>
+          <button id="clear">Leegmaken</button>
+        </div>
+      </div>
+      <div class="settings">
+        <div>
+          <label for="brandIn">Merknaam <span class="hint">(optioneel)</span></label>
+          <input id="brandIn" class="txt" placeholder="Leeg = automatisch herkennen">
+        </div>
+        <label class="check"><input type="checkbox" id="skipVariants" checked> <span>Maatvarianten overslaan<br><span class="hint">Producten als "…Bronze-XL" niet los koppelen als "…Bronze" ook in de lijst staat.</span></span></label>
+        <label class="check"><input type="checkbox" id="sizesTogether"> <span>Maten in hetzelfde keuzemenu als kleuren<br><span class="hint">Uit: per maat een eigen kleurvariant-groep.</span></span></label>
+        <div>
+          <label for="synonyms">Kleuren die als hetzelfde tellen</label>
+          <textarea id="synonyms" rows="3" placeholder="Eén groep per regel, bijv.&#10;Grey = Gray = Grijs"></textarea>
+          <p class="hint">Alleen voor serie-items. Voorbeeld: Grey = Gray.</p>
+        </div>
+        <div>
+          <label for="extraColors">Extra kleurnamen <span class="hint">(optioneel)</span></label>
+          <textarea id="extraColors" rows="2" placeholder="Komma-gescheiden, bijv. Pomelo, Cactus"></textarea>
+        </div>
+        <div>
+          <label for="extraTypes">Extra producttypes</label>
+          <textarea id="extraTypes" rows="2" placeholder="Komma-gescheiden, bijv. Handdoekenset"></textarea>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="notice" class="notice" hidden></div>
+
+  <section id="mapping" class="panel" hidden></section>
+
+  <section class="panel stats" id="stats" aria-live="polite"></section>
+
+  <section class="panel where" id="where" hidden></section>
+
+  <section>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="kv" aria-selected="true">Kleurvarianten<span class="n" id="n-kv">0</span></button>
+      <button class="tab" role="tab" data-tab="si" aria-selected="false">Serie-items<span class="n" id="n-si">0</span></button>
+      <button class="tab" role="tab" data-tab="check" aria-selected="false">Te controleren<span class="n" id="n-check">0</span></button>
+      <button class="tab" role="tab" data-tab="all" aria-selected="false">Alle producten<span class="n" id="n-all">0</span></button>
+      <button class="tab" role="tab" data-tab="export" aria-selected="false">Exporteren</button>
+    </div>
+    <div id="view"></div>
+  </section>
+</div>
+
+<script>
+const SAMPLE = "Gratis verzending vanaf € 50*  Achteraf betalen 🏆Beste online winkel in Wonen 2025-2026\nInloggen \nKlantenservice\n\nProducten\nRuimtes\nNieuw\nKerst\nby fonQ\nOutlet\nMerken\nHome>Merkenoverzicht>Zone Denmark\nType Product\n\nAfdruiprek\n(1)\n\nAfwasborstel\n(10)\n\nAfwasset\n(5)\n\nBadborstel\n(3)\n\nBadlaken\n(32)\n\nBadmat\n(14)\n\nBadtextielset\n(13)\n\nBeauty Box\n(17)\n\nBierglas\n(1)\n\nBijzettafel\n(5)\n\nBord\n(4)\n\nBroodmand\n(1)\n\nBureau accessoire\n(1)\n\nChampagneglas\n(1)\n\nCocktail accessoire\n(5)\n\nCocktailglas\n(2)\n\nCocktailset\n(1)\n\nCocktailshaker\n(4)\n\nDesinfectie Dispenser\n(6)\n\nDienblad\n(12)\n\nDouchegordijn\n(11)\n\nDunschiller\n(1)\n\nEierdop\n(5)\n\nEtagère\n(2)\n\nFlesopener\n(2)\n\nGastendoek\n(15)\n\nGezichtsdoekje\n(6)\n\nGootsteenorganizer\n(4)\n\nGroenteborstel\n(1)\n\nHaakje\n(49)\n\nHanddoek\n(49)\n\nHanddoekenrek\n(6)\n\nIjsblokjesmaker\n(1)\n\nIjsemmer\n(1)\n\nKapstok\n(3)\n\nKaraf\n(2)\n\nKeukenrolhouder\n(4)\n\nKeukenset\n(1)\n\nKeukentrolley\n(2)\n\nKledinghanger\n(1)\n\nKoffiefilter\n(2)\n\nKom\n(2)\n\nKookwekker\n(4)\n\nKruk\n(6)\n\nLamp\n(3)\n\nLantaarn\n(5)\n\nMaatbeker\n(1)\n\nMaatlepel\n(1)\n\nMagneet\n(2)\n\nMagneetbord\n(1)\n\nMake-up spiegel\n(12)\n\nMes\n(1)\n\nMessenblok\n(5)\n\nNagelborstel\n(1)\n\nOnderzetter\n(73)\n\nOpbergbox\n(4)\n\nOpbergmand\n(15)\n\nOpbergsysteem\n(1)\n\nPannenonderzetter\n(4)\n\nPennenhouder\n(1)\n\nPeper- en zoutmolen\n(1)\n\nPlanchet\n(2)\n\nPrullenbak\n(57)\n\nRaamwisser\n(18)\n\nReserverolhouder\n(5)\n\nSchaal\n(1)\n\nSchilmes\n(1)\n\nSchoenenrek\n(2)\n\nSchoenlepel\n(3)\n\nServeerschaal\n(1)\n\nServethouder\n(1)\n\nServies\n(1)\n\nShotglas\n(1)\n\nSnijder\n(1)\n\nSnijplank\n(1)\n\nSpiegel\n(3)\n\nTaartplateau\n(1)\n\nTafellamp\n(4)\n\nTandenborstelhouder\n(49)\n\nTheelichthouder\n(3)\n\nThermosfles\n(12)\n\nThermoskan\n(4)\n\nTijdschriftenhouder\n(1)\n\nTissuebox\n(8)\n\nToiletbutler\n(4)\n\nTuinbank\n(2)\n\nTuinkussen\n(4)\n\nVaas\n(9)\n\nVaatdoek\n(10)\n\nVloerwisser\n(1)\n\nWandafvalemmer\n(2)\n\nWandplank\n(4)\n\nWashandje\n(10)\n\nWasmand\n(19)\n\nWaterkan\n(1)\n\nWattenschijfjeshouder\n(3)\n\nWC borstel\n(45)\n\nWC rolhouder\n(13)\n\nWhiskyglas\n(2)\n\nWijndop\n(1)\n\nWijnglas\n(1)\n\nWijnrek\n(4)\n\nZeepdispenser\n(53)\n\nZeepschaal\n(27)\nMeer opties\nMateriaal\n\nAardewerk\n(81)\n\nAluminium\n(71)\n\nBadstof\n(1)\n\nBamboe\n(1)\n\nBeton\n(13)\n\nGlas\n(24)\n\nGlasvezel\n(1)\n\nHout\n(21)\n\nIJzer\n(4)\n\nKatoen\n(149)\n\nKunststof\n(127)\n\nMetaal\n(59)\n\nPapier\n(4)\n\nPolyester\n(15)\n\nPolypropeen\n(21)\n\nPorselein\n(64)\n\nRVS\n(29)\n\nSiliconen\n(105)\n\nStaal\n(46)\n\nSteen\n(13)\nMeer opties\nKleur\n\nBeige\n(45)\n\nBlauw\n(37)\n\nBrons\n(5)\n\nBruin\n(39)\n\nChrome\n(2)\n\nCrème\n(12)\n\nGeel\n(3)\n\nGoud\n(1)\n\nGrijs\n(170)\n\nGroen\n(81)\n\nHoutkleurig\n(11)\n\nKleurloos\n(10)\n\nMulti\n(7)\n\nOranje\n(22)\n\nPaars\n(5)\n\nRood\n(20)\n\nRoze\n(4)\n\nTaupe\n(60)\n\nTransparant\n(8)\n\nWit\n(124)\n\nZilver\n(26)\n\nZwart\n(178)\nMeer opties\nSerie\n\nZone Denmark Classic\n(72)\n\nZone Denmark Inu\n(32)\n\nZone Denmark Karma\n(14)\n\nZone Denmark Nova\n(51)\n\nZone Denmark Rim\n(42)\n\nZone Denmark Rocks\n(29)\n\nZone Denmark Sensu\n(30)\n\nzone Denmark Singles\n(45)\n\nZone Denmark Solo\n(18)\n\nZone Denmark Suii\n(4)\n\nZone Denmark Tiles\n(1)\n\nZone Denmark Time\n(17)\n\nZone Denmark Ume\n(126)\nMeer opties\nPrijs\n4270\n\nLevertijd\nKorting\nZone Denmark\nDesign for your everyday life\nDesign for your everyday life\n\nBadkameraccessoires\nBadkameraccessoires\nBadkamerprullenbakken\nBadkamerprullenbakken\nOnderzetters\nOnderzetters\n844 artikelen\n\nZone Denmark Sauna Washandje White Wash Glove\nZone Denmark Sauna Washandje White Wash Glove\n€ 5,95\nZone Denmark Sauna Washandje Taupe Wash Glove\nZone Denmark Sauna Washandje Taupe Wash Glove\n€ 5,95\nZone Denmark Sauna Wash Glove Washandje Soft Grey\nZone Denmark Sauna Wash Glove Washandje Soft Grey\n€ 5,95\nZone Denmark Sauna Wash Glove Washandje Grey\nZone Denmark Sauna Wash Glove Washandje Grey\n€ 5,95\nZone Denmark Sauna Wash Glove Washandje Black\nZone Denmark Sauna Wash Glove Washandje Black\n€ 5,95\nZone Denmark Sauna Washandje White Wash Cloth\nZone Denmark Sauna Washandje White Wash Cloth\n€ 5,95€ 4,95\nZone Denmark Sauna Wash Cloth Washandje Taupe\nZone Denmark Sauna Wash Cloth Washandje Taupe\n€ 5,95€ 4,95\nZone Denmark Sauna Washandje Soft Grey Wash Cloth\nZone Denmark Sauna Washandje Soft Grey Wash Cloth\n€ 5,95€ 4,95\nZone Denmark Sauna Washandje Grey Wash Cloth\nZone Denmark Sauna Washandje Grey Wash Cloth\n€ 5,95€ 4,95\nZone Denmark Sauna Wash Cloth Washandje Black Set van 4\nZone Denmark Sauna Wash Cloth Washandje Black Set van 4\n€ 5,95\nZone Denmark Cube Onderzetter Sand\nZone Denmark Cube Onderzetter Sand\n€ 9,95€ 7,95\nZone Denmark Cube Onderzetter Taupe\nZone Denmark Cube Onderzetter Taupe\n€ 9,95€ 7,95\nZone Denmark Cube Onderzetter Rose\nZone Denmark Cube Onderzetter Rose\n€ 9,95€ 7,95\nZone Denmark Cube Onderzetter Orange\nZone Denmark Cube Onderzetter Orange\n€ 9,95€ 7,95\nZone Denmark Cube Onderzetter Cactus\nZone Denmark Cube Onderzetter Cactus\n€ 9,95€ 7,95\nZone Denmark Cube Onderzetter Black\nZone Denmark Cube Onderzetter Black\n€ 9,95€ 7,95\nZone Denmark Bold Onderzetter Pomelo\nZone Denmark Bold Onderzetter Pomelo\n€ 9,95€ 7,95\nZone Denmark Bold Onderzetter Orange\nZone Denmark Bold Onderzetter Orange\n€ 9,95€ 7,95\nZone Denmark Bold Onderzetter Latte\nZone Denmark Bold Onderzetter Latte\n€ 9,95€ 7,95\nZone Denmark Bold Onderzetter Burgundy\nZone Denmark Bold Onderzetter Burgundy\n€ 9,95€ 7,95\nZone Denmark Bold Onderzetter Blue\nZone Denmark Bold Onderzetter Blue\n€ 9,95€ 7,95\nZone Denmark Bold Onderzetter Black\nZone Denmark Bold Onderzetter Black\n€ 9,95€ 7,95\nZone Denmark Ume Dienblad White 26,5 x 9,5 cm\nZone Denmark Ume Dienblad White 26,5 x 9,5 cm\n€ 24,95€ 19,95\nZone Denmark Ume Dienblad Taupe 26,5 x 9,5 cm\nZone Denmark Ume Dienblad Taupe 26,5 x 9,5 cm\n€ 24,95€ 18,95\nZone Denmark Ume Dienblad Black 26,5 x 9,5 cm\nZone Denmark Ume Dienblad Black 26,5 x 9,5 cm\n€ 24,95€ 18,95\nZone Denmark Ume Dienblad White 18 x 9,5 cm\nZone Denmark Ume Dienblad White 18 x 9,5 cm\n€ 19,95€ 16,95\nZone Denmark Ume Dienblad Taupe 18 x 9,5 cm\nZone Denmark Ume Dienblad Taupe 18 x 9,5 cm\n€ 19,95€ 16,95\nZone Denmark Ume Dienblad Black 18 x 9,5 cm\nZone Denmark Ume Dienblad Black 18 x 9,5 cm\n€ 19,95€ 16,95\nZone Denmark Classic Handdoekenset Dark Blue 4-Delig\nZone Denmark Classic Handdoekenset Dark Blue 4-Delig\n€ 81,80\nZone Denmark Sauna Handdoek White (50 x 70 cm)\nZone Denmark Sauna Handdoek White (50 x 70 cm)\n€ 12,07€ 9,95\nZone Denmark Sauna Handdoek Terracotta (50 x 70 cm)\nZone Denmark Sauna Handdoek Terracotta (50 x 70 cm)\n€ 12,07€ 9,95\nZone Denmark Sauna Handdoek Taupe (50 x 70 cm)\nZone Denmark Sauna Handdoek Taupe (50 x 70 cm)\n€ 12,07€ 9,95\nZone Denmark Sauna Handdoek Soft Grey (50 x 70 cm)\nZone Denmark Sauna Handdoek Soft Grey (50 x 70 cm)\n€ 12,07€ 9,95\nZone Denmark Sauna Handdoek Olive Green (50 x 70 cm)\nZone Denmark Sauna Handdoek Olive Green (50 x 70 cm)\n€ 12,07€ 9,95\nZone Denmark Sauna Handdoek Grey (50 x 70 cm)\nZone Denmark Sauna Handdoek Grey (50 x 70 cm)\n€ 12,07€ 9,95\nZone Denmark Sauna Handdoek Eucalyptus 50 x 70 cm\nZone Denmark Sauna Handdoek Eucalyptus 50 x 70 cm\n€ 12,07€ 9,95\nZone Denmark Sauna Handdoek Camel 50 x 70 cm\nZone Denmark Sauna Handdoek Camel 50 x 70 cm\n€ 12,07€ 9,95\nZone Denmark Sauna Handdoek Black 50 x 70 cm\nZone Denmark Sauna Handdoek Black 50 x 70 cm\n€ 12,07€ 9,95\nZone Denmark Sauna Handdoek White 50 x 100 cm\nZone Denmark Sauna Handdoek White 50 x 100 cm\n€ 13,95€ 11,95\nZone Denmark Sauna Handdoek Terracotta 50 x 100 cm\nZone Denmark Sauna Handdoek Terracotta 50 x 100 cm\n€ 13,95€ 11,95\nZone Denmark Sauna Handdoek Taupe 50 x 100 cm\nZone Denmark Sauna Handdoek Taupe 50 x 100 cm\n€ 13,95€ 11,95\nZone Denmark Sauna Handdoek Soft Grey (50 x 100 cm)\nZone Denmark Sauna Handdoek Soft Grey (50 x 100 cm)\n€ 13,95€ 11,95\nZone Denmark Sauna Handdoek Olive Green 50 x 100 cm\nZone Denmark Sauna Handdoek Olive Green 50 x 100 cm\n€ 13,95€ 11,95\nZone Denmark Sauna Handdoek Grey (50 x 100 cm)\nZone Denmark Sauna Handdoek Grey (50 x 100 cm)\n€ 13,95€ 11,95\nZone Denmark Sauna Handdoek Eucalyptus 50 x 100 cm\nZone Denmark Sauna Handdoek Eucalyptus 50 x 100 cm\n€ 13,95€ 11,95\nZone Denmark Sauna Handdoek Camel (50 x 100 cm)\nZone Denmark Sauna Handdoek Camel (50 x 100 cm)\n€ 13,95€ 10,95\nZone Denmark Sauna Handdoek Black (50 x 100 cm)\nZone Denmark Sauna Handdoek Black (50 x 100 cm)\n€ 13,95\nZone Denmark Tada Tandenborstelhouder Smoked\nZone Denmark Tada Tandenborstelhouder Smoked\n€ 26,95€ 19,95\nZone Denmark Tada Tandenborstelhouder Dark Green\nZone Denmark Tada Tandenborstelhouder Dark Green\n€ 26,95€ 19,95\nZone Denmark Tada Tandenborstelhouder Brown\nZone Denmark Tada Tandenborstelhouder Brown\n€ 26,95€ 19,95\nZone Denmark Nova One Tandenborstelhouder White\nZone Denmark Nova One Tandenborstelhouder White\n€ 24,95€ 21,95\nZone Denmark Nova One Tandenborstelhouder Soft Grey\nZone Denmark Nova One Tandenborstelhouder Soft Grey\n€ 24,95\nZone Denmark Nova One WC borstel White\nZone Denmark Nova One WC borstel White\n€ 62,95€ 56,95\nZone Denmark Nova One WC Borstel Soft Grey\nZone Denmark Nova One WC Borstel Soft Grey\n€ 62,95€ 44,95\nZone Denmark Tada Zeepdispenser Smoked 240 ml\nZone Denmark Tada Zeepdispenser Smoked 240 ml\n€ 34,95€ 26,95\nZone Denmark Tada Zeepdispenser Dark Green 240 ml\nZone Denmark Tada Zeepdispenser Dark Green 240 ml\n€ 34,95€ 27,95\nZone Denmark Tada Zeepdispenser Brown 240 ml\nZone Denmark Tada Zeepdispenser Brown 240 ml\n€ 34,95€ 27,95\nZone Denmark Nova One Zeepdispenser White 250 ml\nZone Denmark Nova One Zeepdispenser White 250 ml\n€ 41,95€ 37,95\nZone Denmark Nova One Zeepdispenser Soft Grey 250 ml\nZone Denmark Nova One Zeepdispenser Soft Grey 250 ml\n€ 41,95€ 36,95\nZone Denmark Singles Afwasborstel Black Pot Brush\nZone Denmark Singles Afwasborstel Black Pot Brush\n€ 10,00\n1\n2\n…\n15\n»\nZone Denmark\n\nAlles eenvoudig zelf regelen\nInloggen\nBestellen\nRetourneren\nLevertijd\nGarantie\nFAQ\n✉\nMeld je aan voor onze nieuwsbrief\nOntvang inspiratie, persoonlijke acties en een kleine verrassing.\n\nInschrijven\nKlantenservice\nContact\nVerzending & bezorgen\nRuilen & retourneren\nBetaalmethodes\nGarantie\nInloggen\nVeelgestelde vragen\nZakelijk bestellen\nOver fonQ\nOver ons\nSitemap\nOpeningstijden\nMa t/m Vr\t09:00 - 18:00\nDirect advies\nMail onze klantenservice\nVolg fonQ\nAlgemene Voorwaarden | Privacy | Gegevensverwerking\nCopyright © 2026\n\n\n\n✕\nOntvang €5 korting!";
+const BASE_TYPES = ["Beeld","Wandrek","Boekenrek","Boekenkast","Rek","Waxinelicht","Poster","Sierkussen","Serviesset","Servies","Bestek","Bestekset","Glazenset","Mokkenset","Opbergkast","Wandkast","Kinderstoel","Botervloot","Bowl","Theepot","Suikerpot","Melkkan","Opbergpot","Voorraadpot","Pot","Krukje","Placemat","Overhemd","Shirt","Jacket","Jas","Hoodie","Sweater","Trui","T-shirt","Polo","Broek","Pants","Jeans","Short","Shorts","Rok","Jurk","Vest","Cap","Pet","Muts","Beanie","Sjaal","Sokken","Socks","Sneaker","Sneakers","Schoenen","Boots","Tas","Rugzak","Backpack","Riem","Handschoenen","Gloves","Bodywarmer","Parka","Fleece","Longsleeve","Top","Tanktop","Stoel","Eetkamerstoel","Barkruk","Bank","Hoekbank","Tafel","Eettafel","Salontafel","Kast","Dressoir","Fauteuil","Poef","Bed","Hanglamp","Vloerlamp","Wandlamp","Plafondlamp","Bureau","Ladekast","Boekenkast","Tv-meubel","Nachtkastje","Kapstok","Chair","Table","Sofa","Stool","Badjas","Badmat","Badslippers","Toiletmat","Douchemat","Strandlaken","Hamamdoek","Keukendoek","Theedoek","Ochtendjas","Kimono","Sprei","Laken","Kussensloop","Tafelkleed","Placemat","Servet","Douchekorf","Zeeppomp","Afdruiprek","Afwasborstel","Afwasset","Badborstel","Badlaken","Badmat","Badtextielset","Beauty Box","Beker","Bierglas","Bijzettafel","Bloempot","Bord","Broodmand","Broodtrommel","Champagneglas","Cocktailglas","Cocktailshaker","Dekbedovertrek","Dienblad","Douchegordijn","Eierdop","Etagère","Flesopener","Fotolijst","Gastendoek","Gezichtsdoekje","Glas","Haakje","Handdoek","Handdoekenset","Handdoekenrek","Hoeslaken","Kandelaar","Kan","Kapstok","Karaf","Kaars","Keukenrolhouder","Klok","Kom","Kookwekker","Kruk","Kussen","Kussenhoes","Lamp","Lantaarn","Mand","Mok","Messenblok","Onderzetter","Opbergbox","Opbergmand","Pannenonderzetter","Planchet","Plaid","Plantenpot","Prullenbak","Raamwisser","Reserverolhouder","Schaal","Serveerschaal","Snijplank","Spiegel","Tafellamp","Tandenborstelhouder","Theelichthouder","Thermosfles","Thermoskan","Tissuebox","Toiletbutler","Vaas","Vaatdoek","Vloerkleed","Wandplank","Washandje","Wasmand","Waterkan","Wattenschijfjeshouder","WC borstel","WC rolhouder","Wijnglas","Wijnrek","Zeepdispenser","Zeepschaal"];
+const COLORS = {"white":"#F4F4F2","off white":"#EEEBE3","black":"#1E1E1E","grey":"#8A8D8F","gray":"#8A8D8F","soft grey":"#BFC1C0","light grey":"#CFD1D0","dark grey":"#4A4D4F","warm grey":"#9A928A","cool grey":"#8E979C","taupe":"#8B7D70","sand":"#D2BE9B","camel":"#B48A5A","latte":"#C9A98A","beige":"#D8C8AE","cream":"#F1E8D2","ivory":"#F3EEDF","nude":"#D9B8A0","rose":"#D9A3A6","pink":"#E2A3B5","coral":"#E57F6B","orange":"#E07A2F","terracotta":"#B8583A","rust":"#A44C2A","burgundy":"#6E1F2E","red":"#B8322F","blue":"#3A5FA0","dark blue":"#1F2E55","light blue":"#9EC1DE","navy":"#1C2A4A","petrol":"#1F5A63","green":"#4E8A4A","dark green":"#2E4A35","olive":"#6B6F3A","olive green":"#6B6F3A","eucalyptus":"#8FA89A","cactus":"#6E8B5B","sage":"#A3AF94","mint":"#A8D5BA","pomelo":"#E8B4A0","yellow":"#E3C344","mustard":"#C99A2E","ochre":"#C08A2B","brown":"#6B4A33","chocolate":"#4A3226","smoked":"#6E6A66","gold":"#C9A245","silver":"#B9BCBF","chrome":"#C9CCCF","copper":"#B87333","brass":"#B5964A","clear":null,"transparent":null,"natural":"#CDB592","multi":"multi","multicolor":"multi","purple":"#6A4C93","lilac":"#B7A5D3","anthracite":"#3B3E40","stone":"#A39E93","oak":"#B08A5A","walnut":"#5C4033","wit":"#F4F4F2","zwart":"#1E1E1E","grijs":"#8A8D8F","lichtgrijs":"#CFD1D0","donkergrijs":"#4A4D4F","blauw":"#3A5FA0","donkerblauw":"#1F2E55","lichtblauw":"#9EC1DE","groen":"#4E8A4A","donkergroen":"#2E4A35","olijfgroen":"#6B6F3A","rood":"#B8322F","roze":"#E2A3B5","oranje":"#E07A2F","geel":"#E3C344","bruin":"#6B4A33","crème":"#F1E8D2","creme":"#F1E8D2","zand":"#D2BE9B","goud":"#C9A245","zilver":"#B9BCBF","koper":"#B87333","paars":"#6A4C93","antraciet":"#3B3E40","naturel":"#CDB592","transparant":null,"kleurloos":null,
+"bronze":"#8C6A3F","brons":"#8C6A3F","moss":"#6F7A4A","mosgroen":"#6F7A4A","sky":"#9EC1DE","forest":"#2F4B36","ocean":"#2A5C7A","sea":"#4F8A96","ice":"#D6E6EC","powder":"#E9D7D3","clay":"#B9826A","sienna":"#A0522D","umber":"#635147","coffee":"#6F4E37","mocha":"#7B5B4A","espresso":"#3C2A21","caramel":"#AF6E3D","cognac":"#9A463D","tan":"#C19A6B","khaki":"#B7A77A","pine":"#2E5444","emerald":"#2E8B57","jade":"#4FA383","teal":"#2D7D7A","turquoise":"#3FB8AF","aqua":"#7FCDCD","indigo":"#3F3D8A","cobalt":"#2F4FA2","denim":"#4F6D8F","slate":"#5E6B73","charcoal":"#36454F","graphite":"#474A4E","pewter":"#8E9194","gunmetal":"#53565A","platinum":"#D9D9D6","champagne":"#E8D6B3","pearl":"#EAE4D9","linen":"#E9E0D0","oat":"#DCCFB6","oatmeal":"#DCCFB6","almond":"#E2CFB4","biscuit":"#D9BE98","sesame":"#C8B79A","vanilla":"#F2E6C4","butter":"#F1DE9C","lemon":"#EFD95B","saffron":"#E2A93B","amber":"#D08A2E","honey":"#C99540","cinnamon":"#A0603A","brick":"#9C4A35","wine":"#6B2737","plum":"#6A3B5C","aubergine":"#3F2A3D","mauve":"#B08A9C","lavender":"#B9A7D6","blush":"#E6BDB5","peach":"#F0B89A","apricot":"#EDA77A","salmon":"#E99A86","fuchsia":"#C2378B","magenta":"#B03A85","cherry":"#9E2236","ruby":"#9B1B30","merlot":"#5E1F2B","bordeaux":"#5C1A27","oxblood":"#5A1E1E","nougat":"#A8846A","hazel":"#8E7151","chestnut":"#7A4B32","mahogany":"#6A2E22","ebony":"#2A2420","onyx":"#2B2B2B","jet":"#1A1A1A","snow":"#F7F7F5","chalk":"#ECEAE3","bone":"#E3DACB","ecru":"#E6DCC4","greige":"#B8AFA2","mushroom":"#A39382","truffle":"#6B5A4E","pebble":"#9C978F","dove":"#B9B5AE","fog":"#C9CCCB","mist":"#D4D8D7","smoke":"#8F8C88","ash":"#B2B0AA","steel":"#7D8A93","concrete":"#9A9A96","cement":"#A3A19B","sandstone":"#C9AE88","moss green":"#6F7A4A","army":"#55593A","nordic":"#9AA7AE","dusk":"#7E7A8F","night":"#22283A","rosé":"#D9A3A6","oud roze":"#C59A99","mint green":"#A8D5BA","carbon":"#3A3B3D","gun metal":"#53565A","gunmetal grey":"#53565A","desert":"#C9A27A","sahara":"#D4B483","terra":"#B8583A"};
+const QUALIFIERS=new Set(["ss","ls","unisex","heren","dames","kinder","kinderen","kids","kid","men","women","mens","womens","junior","baby","uni"]);
+Object.assign(COLORS,{"zwarte":"#1E1E1E","witte":"#F4F4F2","gebroken":null,"grijze":"#8A8D8F","lichtgrijze":"#CFD1D0","donkergrijze":"#4A4D4F","blauwe":"#3A5FA0","lichtblauwe":"#9EC1DE","donkerblauwe":"#1F2E55","groene":"#4E8A4A","lichtgroene":"#A3C49A","donkergroene":"#2E4A35","olijfgroene":"#6B6F3A","mosgroene":"#6F7A4A","rode":"#B8322F","donkerrode":"#7A1F24","gele":"#E3C344","okergele":"#C08A2B","bruine":"#6B4A33","lichtbruine":"#A47A55","donkerbruine":"#4A3226","roestbruine":"#A44C2A","paarse":"#6A4C93","oranje":"#E07A2F","gouden":"#C9A245","zilveren":"#B9BCBF","koperen":"#B87333","messing":"#B5964A","natuurlijke":"#CDB592","natuurlijk":"#CDB592","naturel":"#CDB592","antracietgrijze":"#3B3E40","walnoot":"#5C4033","eiken":"#B08A5A","zwartgelakt":"#1E1E1E","witgelakt":"#F4F4F2","mat":null});
+Object.assign(COLORS,{"gris":"#8A8D8F","noir":"#1E1E1E","blanc":"#F4F4F2","bleu":"#3A5FA0","marine":"#1C2A4A","rouge":"#B8322F","vert":"#4E8A4A","jaune":"#E3C344","marron":"#6B4A33","kaki":"#B7A77A","anthracite":"#3B3E40","chine":"#9A9C9E","chiné":"#9A9C9E","clair":null,"fonce":null,"foncé":null,
+"nero":"#1E1E1E","bianco":"#F4F4F2","grigio":"#8A8D8F","blu":"#3A5FA0","rosso":"#B8322F","verde":"#4E8A4A","giallo":"#E3C344","marrone":"#6B4A33","beige":"#D8C8AE",
+"negro":"#1E1E1E","blanco":"#F4F4F2","azul":"#3A5FA0","rojo":"#B8322F","amarillo":"#E3C344","marrón":"#6B4A33",
+"schwarz":"#1E1E1E","weiss":"#F4F4F2","weiß":"#F4F4F2","grau":"#8A8D8F","blau":"#3A5FA0","rot":"#B8322F","grün":"#4E8A4A","gelb":"#E3C344","braun":"#6B4A33"});
+/* Woorden op -kleurig / -kleurige (walnootkleurige, zandkleurige) zijn altijd een kleur */
+const KLEURIG_RE=/^[a-zà-ÿ]+(kleurig|kleurige|kleurd|kleurde)$/i;
+Object.assign(COLORS,{"helder":null,"helderglas":null,"nature":"#CDB592","natur":"#CDB592","marshmallow":"#F3EEE6","leopard":"multi","vapor":"#CFD8DC","military":"#55593A","spray":null,"sea spray":"#A9C8C0","tortoise":"#6B4A2E","zebra":"multi","python":"multi","croco":null,"octane":"#E4572E","tundra":"#7A7B5E","flax":"#CDBA96","beeswax":"#D9A441","fig":"#5E3A4B","clay":"#B07D62","agave":"#5E8C7A","birch":"#D8D0C0","glacier":"#C9DDE4","kingfisher":"#2B6E8F","pewter":"#8A8D8F","nickel":"#9C9C94","granite":"#6B6B6B","aluminum":"#A8A9AD","aluminium":"#A8A9AD","admiral":"#2A3B5C","caspian":"#2F6B73","curry":"#C49A2C","sergeant":"#4F5A3A","moonstone":"#B9BCB8","basalt":"#3F4142","indigo":"#3F3D8A","saffron":"#E2A93B","cherrywood":"#6E2E2A","wasabi":"#9CB33B","envy":null,"drifter":null,"creek":null,"belay":null,"laurel":null,"moab":null,"cirrus":null,"iron":null,"baja":null,"sunrise":"#F2A65A","sienna":"#A0522D","heather":null,"melange":null,"marl":null,"steel gray":"#7D8A93","steel grey":"#7D8A93","dark tan":"#8B6F4E","azul":"#3A5FA0"});
+const MODIFIERS=new Set(["space","heather","melange","marl","envy","drifter","creek","belay","laurel","moab","cirrus","iron","baja","clean","storm","ink","deep","woods","light","dark","soft","warm","cool","deep","pale","dusty","misty","sky","forest","ocean","sea","ice","powder","burnt","bright","matt","mat","matte","glossy","shiny","pastel","neon","royal","midnight","smoky","smokey","antique","vintage","brushed","polished","satin","metallic","mid","medium","faded","washed","raw","licht","donker","zacht","koel","diep","oud","off","army","bottle","dusk","night","baby","hot","electric","rich","nordic","old"]);
+const SIZE_RE = /\(?\s*(?:Ø\s*)?\d+(?:[.,]\d+)?(?:\s*[x×]\s*\d+(?:[.,]\d+)?)*\s*(?:mm|cm|ml|cl|ltr|liter|kg|gr|m|l|g)\b\s*\)?/gi;
+const DIM_RE = /\b\d{2,4}(?:[.,]\d+)?\s*[x×]\s*\d{2,4}(?:[.,]\d+)?(?:\s*[x×]\s*\d{2,4}(?:[.,]\d+)?)?\b/gi;
+const LDIM_RE = /\b[BHDLWØ]\s*\d+(?:[.,]\d+)?(?:\s*(?:cm|mm))?(?:\s*[x×]\s*[BHDLWØ]?\s*\d+(?:[.,]\d+)?(?:\s*(?:cm|mm))?)*/g;
+const SET_RE = /\b(set\s+van\s+\d+|\d+\s*-?\s*delig|\d+\s*-?\s*pack|\d+\s*stuks)\b/i;
+
+let rows=[], approved=new Set(), checked=new Set(), groups={kv:[],si:[]}, current="kv", lastMeta={};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm=s=>String(s||"").replace(/\s+/g," ").trim();
+const low=s=>norm(s).toLowerCase();
+const list=s=>String(s||"").split(/[,\n]/).map(norm).filter(Boolean);
+
+function store(k,v){try{localStorage.setItem("kh-"+k,JSON.stringify(v))}catch(e){}}
+function load(k,d){try{const v=localStorage.getItem("kh-"+k);return v==null?d:JSON.parse(v)}catch(e){return d}}
+
+/* ---------- Invoer lezen ---------- */
+function section(lines,header){
+  const out=[]; let i=lines.findIndex(l=>low(l)===low(header)); if(i<0) return out;
+  for(i=i+1;i<lines.length;i++){
+    const l=lines[i]; if(!l) continue;
+    if(/^\(\d+\)$/.test(l)) continue;
+    let j=i+1; while(j<lines.length&&!lines[j]) j++;
+    if(j<lines.length&&/^\(\d+\)$/.test(lines[j])) out.push(l); else break;
+  }
+  return out;
+}
+function parseInput(text){
+  const lines=text.split(/\r?\n/).map(s=>s.trim());
+  const nonEmpty=lines.filter(Boolean);
+  const meta={types:[],series:[],brand:null,source:"lijst"};
+  const first=nonEmpty[0]||"";
+  const HDR=/titel|title|naam|name|product|omschrijving|\bid\b|artikel/i;
+  const dOf=l=>l.includes("\t")?"\t":(l.split(";").length>2?";":null);
+  /* kopregel ergens in de tekst (bijv. als er nog oude tekst boven stond) */
+  const hIdx=nonEmpty.findIndex(l=>dOf(l)&&HDR.test(l));
+  if(hIdx>=0){const d=dOf(nonEmpty[hIdx]);const tl=[nonEmpty[hIdx],...nonEmpty.slice(hIdx+1).filter(l=>l.includes(d)&&l!==nonEmpty[hIdx])];
+    if(tl.length>1){meta.skipped=nonEmpty.length-tl.length;return parseTable(tl,d,meta)}}
+  if(first.split(",").length>2&&HDR.test(first)&&nonEmpty.length>1) return parseTable(nonEmpty,",",meta);
+  /* tabel zonder kopregel */
+  const tabbed=nonEmpty.filter(l=>l.includes("\t"));
+  if(tabbed.length>=2&&tabbed.length>=nonEmpty.length*.8){const n=Math.max(...tabbed.map(l=>l.split("\t").length));
+    meta.noHeader=true;return parseTable([Array.from({length:n},(_, i)=>"Kolom "+(i+1)).join("\t"),...tabbed],"\t",meta)}
+  meta.types=section(lines,"Type Product"); meta.series=section(lines,"Serie");
+  const bm=text.match(/Merkenoverzicht\s*>\s*([^\n>]+)/i); if(bm) meta.brand=norm(bm[1]);
+  const items=[];
+  for(let i=0;i<lines.length;i++){
+    const l=lines[i]; if(!l||l.startsWith("€")) continue;
+    let j=i+1; while(j<lines.length&&!lines[j]) j++;
+    let k=j;
+    if(lines[j]===l){k=j+1; while(k<lines.length&&!lines[k]) k++;}
+    if(lines[k]&&lines[k].startsWith("€")){items.push({title:l}); i=k;}
+  }
+  if(items.length>=2){meta.source="pagina"; return {items:dedupe(items),meta};}
+  const plain=[]; nonEmpty.forEach(l=>{if(!l.startsWith("€")&&!/^\(\d+\)$/.test(l)&&(!plain.length||plain[plain.length-1].title!==l)) plain.push({title:l})});
+  return {items:dedupe(plain),meta};
+}
+function dedupe(items){const seen=new Set();return items.filter(it=>{const k=low((it.id||"")+"|"+it.title);if(seen.has(k))return false;seen.add(k);return true})}
+const ROLES=[["title","Producttitel"],["id","ID (voor import)"],["brand","Merk"],["series","Serie"],["type","Producttype"],["color","Kleur"],["size","Maat"],["keep","Meenemen in export"],["skip","Negeren"]];
+const TITLE_KEYS=/^(productnaam|naam|titel|title|name|productname|producttitel|omschrijving|description|productomschrijving)$/;
+let table=null;
+const hkey=h=>low(h).replace(/[\s_\-.]/g,"");
+function splitRow(line,d){const out=[];let cur="",q=false;
+  for(let i=0;i<line.length;i++){const ch=line[i];
+    if(q){if(ch==='"'){if(line[i+1]==='"'){cur+='"';i++}else q=false}else cur+=ch}
+    else if(ch==='"'&&cur.trim()==="")q=true; else if(ch===d){out.push(cur);cur=""} else cur+=ch}
+  out.push(cur);return out.map(norm)}
+function guessRole(h,col,titles){
+  const k=hkey(h);
+  if(/^(id|productid|entityid)$/.test(k)) return "id";
+  if(/^(ean|sku|artikelnummer|artikelnr|fabrikantcode|leverancierscode|leveranciercode|mpn|barcode)$/.test(k)) return "keep";
+  if(/^(merk|brand|fabrikant|manufacturer)$/.test(k)) return "brand";
+  const role=/^(serie|series|collectie|collection)$/.test(k)?"series":/^(type|producttype|typeproduct|soort)$/.test(k)?"type":
+    /^(kleur|color|colour)$/.test(k)?"color":/^(maat|size|afmeting|inhoud)$/.test(k)?"size":null;
+  if(!role) return "skip";
+  /* Alleen vertrouwen als de waarden ook echt in de titels staan (dus geen 'simple' of 'configurable') */
+  const filled=col.map((v,i)=>[v,titles[i]||""]).filter(([v])=>v);
+  const hits=filled.filter(([v,t])=>low(t).includes(low(v))).length;
+  return filled.length&&hits/filled.length>=.5?role:"skip";
+}
+function autoRoles(head,data){
+  const col=i=>data.map(r=>r[i]||"");
+  let t=head.findIndex(h=>TITLE_KEYS.test(hkey(h)));
+  if(t<0){let best=-1;head.forEach((h,i)=>{const v=col(i).filter(Boolean);const avg=v.reduce((a,x)=>a+x.length,0)/(v.length||1);
+    const num=v.filter(x=>/^[\d\s.,€-]+$/.test(x)).length;if(num<v.length/2&&avg>best){best=avg;t=i}})}
+  const titles=col(t);
+  const roles=head.map((h,i)=>i===t?"title":guessRole(h,col(i),titles));
+  if(!roles.includes("id")){const k=roles.indexOf("keep");if(k>=0)roles[k]="id"}
+  if(!roles.includes("id")){const k=head.findIndex((h,i)=>{if(roles[i]!=="skip")return false;const v=col(i).filter(Boolean);return v.length>=data.length*.9&&v.every(x=>/^\d+$/.test(x))&&new Set(v).size===v.length});if(k>=0)roles[k]="id"}
+  return roles;
+}
+function parseTable(lines,delim,meta){
+  const head=splitRow(lines[0],delim);
+  const data=lines.slice(1).map(l=>splitRow(l,delim)).filter(r=>r.some(Boolean));
+  const sig=head.join("|");
+  if(!table||table.sig!==sig) table={sig,head,roles:autoRoles(head,data)};
+  table.data=data; meta.source="tabel";
+  const items=data.map(p=>{const it={title:"",id:"",brand:"",series:"",type:"",color:"",size:"",extra:{}};
+    table.roles.forEach((role,i)=>{const v=p[i]||"";if(role==="keep")it.extra[head[i]]=v;else if(role!=="skip")it[role]=v});
+    return it}).filter(i=>i.title);
+  return {items:dedupe(items),meta};
+}
+function detectBrand(items){
+  const n=items.length; if(n<2) return "";
+  const cov={},orig={},pos={};
+  const typeSet=new Set(BASE_TYPES.map(low));
+  items.forEach(it=>{const w=norm((it.title.match(SUFFIX_RE)||[])[1]||it.title).split(/\s+/);const seen=new Set();
+    for(let len=1;len<=2;len++) for(let i=0;i+len<=w.length;i++){const ph=w.slice(i,i+len).join(" "),k=low(ph);
+      if(/\d/.test(k)||k.length<3||seen.has(k)) continue; seen.add(k);
+      cov[k]=(cov[k]||0)+1; orig[k]=orig[k]||ph; pos[k]=(pos[k]||0)+i}});
+  let best="",bs=-Infinity;
+  for(const [k,c] of Object.entries(cov)){
+    if(c<Math.max(2,n*.6)) continue;
+    const bad=k.split(" ").some(w=>typeSet.has(w)||COLORS[w]!==undefined||QUALIFIERS.has(w));
+    const score=(bad?-1e6:0)+c*1000+k.split(" ").length*10-pos[k]/c;
+    if(score>bs){bs=score;best=orig[k]}}
+  if(!best) return best;
+  /* Langere merknamen (A Cold Wall, Le Creuset Signature): breid uit met woorden die in vrijwel elke titel naast het merk staan */
+  let ph=best.split(" ");
+  const titles=items.map(it=>norm((it.title.match(SUFFIX_RE)||[])[1]||it.title).split(/\s+/));
+  const need=Math.max(2,Math.ceil(n*.95));
+  const okW=w=>/[a-zà-ÿ]/i.test(w)&&!(typeSet.has(low(w))||QUALIFIERS.has(low(w))||/\d/.test(w));
+  for(let guard=0;guard<3&&ph.length<4;guard++){
+    let grown=false;
+    for(const dir of [1,-1]){
+      const cnt={},orig2={};
+      titles.forEach(w=>{const m=matchSeq(w,ph.join(" "));if(!m)return;const i=dir>0?m[0]+m[1]:m[0]-1;if(i<0||i>=w.length)return;const k=low(w[i]);cnt[k]=(cnt[k]||0)+1;orig2[k]=w[i]});
+      const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
+      /* niet uitbreiden met een serienaam: staat er direct een producttype achter, dan is het woord de serie */
+      let typeAfter=0;
+      if(dir>0&&top) titles.forEach(w=>{const m=matchSeq(w,[...ph,orig2[top[0]]].join(" "));if(m&&w[m[0]+m[1]]&&typeSet.has(low(w[m[0]+m[1]])))typeAfter++});
+      if(top&&top[1]>=need&&okW(orig2[top[0]])&&typeAfter<titles.length/2){ph=dir>0?[...ph,orig2[top[0]]]:[orig2[top[0]],...ph];grown=true;break}
+    }
+    if(!grown) break;
+  }
+  return ph.join(" ");
+}
+/* Maat na een streepje: alleen als het hele stuk een maat is (70 x 120 cm, 65 cm, XL, Ø40 cm), niet "1/Soft Jasmin Geurkaars" */
+const SUFFIX_RE=/^(.*[A-Za-zÀ-ÿ)])\s*-\s*((?:Ø\s*)?\d+(?:[.,]\d+)?(?:\s*[x×]\s*\d+(?:[.,]\d+)?)*\s*(?:mm|cm|m|ml|cl|l|ltr|liter|g|gr|kg)?|(?:XXS|XS|S|M|L|XL|XXL|XXXL|\dXL|one ?size)(?:\/(?:XXS|XS|S|M|L|XL|XXL))?)\s*$/i;
+function analyze(it,idx,ctx){
+  const r={idx,id:it.id||"",title:norm(it.title),brand:it.brand||ctx.brand||"",series:"",type:"",model:"",color:"",size:"",set:"",notes:[],extra:it.extra||{},parent:null};
+  const hm=r.title.match(SUFFIX_RE);
+  r.base=hm?norm(hm[1]):r.title; r.suffix=hm?norm(hm[2]):"";
+  const isC=w=>ctx.colorSet.has(low(w));
+  const baseC=r.base.replace(/[A-Za-zÀ-ÿ]+(?:[-\/][A-Za-zÀ-ÿ]+)+/g,m=>{const parts=m.split(/[-\/]/);return parts.some(isC)?parts.join(" / "):m});
+  let rest=baseC;
+  rest=rest.replace(SET_RE,m=>{r.set=norm(m);return " "});
+  rest=rest.replace(/\b(centimeters?)\b/gi,"cm").replace(/\b(millimeters?)\b/gi,"mm");
+  const sizes=[]; rest=rest.replace(/\(?\s*\d+(?:[.,]\d+)?\s*(?:cm|mm)?(?:\s*[x×]\s*\d+(?:[.,]\d+)?\s*(?:cm|mm)?)+\s*\)?/gi,m=>{sizes.push(norm(m.replace(/[()]/g,"")));return " "}); rest=rest.replace(LDIM_RE,m=>{sizes.push(norm(m));return " "}); rest=rest.replace(SIZE_RE,m=>{sizes.push(norm(m.replace(/[()]/g,"")));return " "});
+  rest=rest.replace(DIM_RE,m=>{sizes.push(norm(m));return " "});
+  rest=rest.replace(/[\s\-–]+(extra small|extra large|small|medium|large|xs|xl|xxl|xxxl|mini|maxi|klein|kleine|groot|grote)\s*$/i,(m,w)=>{sizes.push(norm(w));return " "});
+  r.size=[...sizes,r.suffix].filter(Boolean).join(" ");
+  const all=rest.replace(/[()]/g," ").split(/\s+/).filter(t=>t&&!/^[-–—]$/.test(t));
+  const bm=r.brand?matchSeq(all,r.brand):null;
+  const finish=()=>{
+    if(it.series) r.series=it.series; if(it.type) r.type=it.type; if(it.size) r.size=it.size;
+    if(it.color){r.color=it.color;r._fixed=true;const cw=low(it.color).split(" ");r.model=r._tok.filter(t=>!cw.includes(low(t))).join(" ")}
+    return r;
+  };
+  const segs=baseC.split(/\s+[-–]\s+/).map(norm).filter(Boolean);
+  if(segs.length>=2&&r.brand&&low(segs[0])===low(r.brand)){
+    /* Opbouw: Merk - Productnaam (serie + type) - Omschrijving (met de kleur) */
+    const clean=t=>t.replace(SET_RE," ").replace(LDIM_RE," ").replace(SIZE_RE," ").replace(DIM_RE," ").replace(/[()]/g," ").split(/\s+/).filter(Boolean);
+    let name=clean(segs[1]), desc=segs.slice(2).flatMap(clean);
+    /* "Tiare wandspiegel Van goudkleurig metaal": de omschrijving begint bij het eerste voorzetsel */
+    const PREP=new Set(["van","met","in","uit","voor","op","with","made","incl","inclusief"]);
+    const pi=name.findIndex((w,i)=>i>=1&&PREP.has(low(w)));
+    if(pi>0){desc=[...name.slice(pi),...desc];name=name.slice(0,pi)}
+    let tm=null; for(const t of ctx.types){const m=matchSeq(name,t);if(m){tm=m;break}}
+    if(!tm){for(let i=0;i<name.length;i++){const tk=low(name[i]);const t=ctx.types.find(t=>!t.includes(" ")&&t.length>=4&&(tk.startsWith(low(t))||t.length>=5&&tk.endsWith(low(t))));if(t){tm=[i,1];break}}}
+    if(!tm&&name.length>=2) tm=[name.length-1,1]; /* geen bekend type: laatste woord van de productnaam */
+    const inType=i=>tm&&i>=tm[0]&&i<tm[0]+tm[1];
+    const cIdx=name.map((w,i)=>i).filter(i=>i>0&&!inType(i)&&(ctx.colorSet.has(low(name[i]))||MODIFIERS.has(low(name[i]))&&name[i+1]&&ctx.colorSet.has(low(name[i+1]))));
+    if(cIdx.length&&cIdx.length<name.length-1){desc=[...cIdx.map(i=>name[i]),...desc];
+      const keep=name.map((w,i)=>i).filter(i=>!cIdx.includes(i)); if(tm){const nt=keep.indexOf(tm[0]);tm=[nt,tm[1]]} name=keep.map(i=>name[i]);}
+    if(tm){r.type=name.slice(tm[0],tm[0]+tm[1]).join(" ");r.series=name.filter((w,i)=>(i<tm[0]||i>=tm[0]+tm[1])&&!QUALIFIERS.has(low(w))).join(" ")}
+    else r.series=name.filter(w=>!QUALIFIERS.has(low(w))).join(" ");
+    r._tok=desc;
+    r._km=findColor(r._tok,ctx.colorSet);
+    r.model=r._tok.join(" "); r.dash=true;
+    return finish();
+  }
+  if(bm&&bm[0]>0){
+    /* Opbouw CMS: Type · Merk · Serie · Kleur */
+    r.type=all.slice(0,bm[0]).join(" ");
+    const after=all.slice(bm[0]+bm[1]);
+    const si=after.findIndex(t=>!QUALIFIERS.has(low(t))&&!ctx.colorSet.has(low(t))&&!NOT_COLOR.test(t));
+    r.series=si>=0?after[si]:"";
+    r._tok=after.filter((t,i)=>i!==si);
+    r._km=findColor(r._tok,ctx.colorSet);
+    r.model=r._tok.join(" ");
+    return finish();
+  }
+  /* Opbouw fonq: Merk · Serie · Type · Kleur */
+  const toks=bm?all.slice(bm[0]+bm[1]):all;
+  let tIdx=-1,tLen=0;
+  for(const t of ctx.types){const m=matchSeq(toks,t);if(m){[tIdx,tLen]=m;break}}
+  /* samengestelde woorden: Loungestoel (stoel), 2-zitsbank (bank), Wandspiegel (spiegel) */
+  if(tIdx<0){for(let i=0;i<toks.length;i++){const tk=low(toks[i]);const t=ctx.types.find(t=>!t.includes(" ")&&(t.length>=5&&tk.startsWith(low(t))||t.length>=4&&tk.length>t.length&&tk.endsWith(low(t))));if(t){tIdx=i;tLen=1;break}}}
+  let before=toks, after=[];
+  if(tIdx>=0){r.type=toks.slice(tIdx,tIdx+tLen).join(" ");before=toks.slice(0,tIdx);after=toks.slice(tIdx+tLen)}
+  let modelParts=[];
+  if(tIdx>=0 && before.length){
+    let sm=null; for(const sr of ctx.series){const m=matchSeq(before,sr);if(m&&m[0]===0){sm=m;break}}
+    let st=0; if(!sm){while(st<before.length-1&&(NOT_COLOR.test(before[st])||QUALIFIERS.has(low(before[st]))))st++}
+    const sl=sm?sm[1]:1; r.series=before.slice(st,st+sl).join(" "); modelParts=[...before.slice(0,st),...before.slice(st+sl)];
+  }
+  if(tIdx<0){
+    const si=toks.findIndex(t=>!QUALIFIERS.has(low(t))&&!ctx.colorSet.has(low(t))&&!NOT_COLOR.test(t));
+    if(si>=0){r.series=toks[si];modelParts=[];after=toks.filter((t,i)=>i!==si)}
+  }
+  r._tok=[...modelParts,...after]; r._pre=modelParts.length;
+  const ca=findColor(after,ctx.colorSet);
+  if(ca) r._km=[modelParts.length+ca[0],ca[1]]; else r._km=findColor(modelParts,ctx.colorSet);
+  r.model=r._tok.join(" ");
+  return finish();
+}
+function analyzeAll(items,meta){
+  const extraC=list($("#extraColors").value).map(low), extraT=list($("#extraTypes").value);
+  items.forEach(it=>String(it.title).split(/[\s,()/]+/).forEach(w=>{const k=low(w);if(KLEURIG_RE.test(k)&&COLORS[k]===undefined)COLORS[k]=null}));
+  const colorSet=new Set([...Object.keys(COLORS),...extraC]);
+  const types=[...new Set([...meta.types,...BASE_TYPES,...extraT].map(norm))].sort((a,b)=>b.split(" ").length-a.split(" ").length||b.length-a.length);
+  const brand=norm($("#brandIn").value)||meta.brand||detectBrand(items);
+  const series=meta.series.map(s=>brand&&low(s).startsWith(low(brand))?norm(s.slice(brand.length)):norm(s)).filter(Boolean)
+    .sort((a,b)=>b.split(" ").length-a.split(" ").length);
+  const out=items.map((it,idx)=>analyze(it,idx,{brand,types,series,colorSet}));
+  if($("#skipVariants").checked){
+    const byTitle=new Map(out.map(r=>[low(r.title),r]));
+    out.forEach(r=>{if(r.suffix){const p=byTitle.get(low(r.base));if(p&&p!==r&&!p.suffix)r.parent=p.idx}});
+  }
+  const main=out.filter(r=>r.parent==null);
+  resolveColors(main,colorSet);
+  main.forEach(r=>{if(r.dash)r.model=""});
+  /* Geen producttype in de titel en geen bekende kleur in het verschil (Acacia Peper- en zoutmolenset / Salade Bestek):
+     het verschil is dan het producttype, niet de kleur -> serie-items */
+  const famT=new Map();
+  main.forEach(r=>{if(r.series){const k=low(r.brand+"|"+r.series);if(!famT.has(k))famT.set(k,[]);famT.get(k).push(r)}});
+  const knownC=c=>low(c).split(/[\s\/&+]+/).filter(Boolean).some(w=>colorSet.has(w)||MODIFIERS.has(w))||colorSet.has(low(c));
+  famT.forEach(a=>{if(a.length<2)return;
+    a.forEach(r=>{if(r.type||!r.color||r._fixed||knownC(r.color))return;
+      r.type=(r._tok&&r._tok.length?r._tok.join(" "):r.color);r.color="";r.model="";r.colorUnsure=false;r.colorLearned=false;r.ambiguous=""})});
+  out.forEach(r=>{if(r.parent!=null){const p=out[r.parent];r.series=p.series;r.type=p.type;r.color=p.color;r.model=p.model}});
+  return out;
+}
+/* Woorden die een maat, aantal of uitvoering aanduiden, geen kleur */
+const NOT_COLOR=/^(\d+([.,]\d+)?|[ivx]{1,4}|xxs|xs|s|m|l|xl|xxl|xxxl|\dxl|mini|small|medium|large|maxi|xs\/s|m\/l|klein|kleine|groot|grote|middel|midi|big|petite|tall|short|long|lang|kort|single|double|dubbel|duo|trio|piccolo|piccola|grande|medio|media|petit|petite|grand|xxl)$/i;
+const SIZE_WORD=/^(xxs|xs|s|m|l|xl|xxl|xxxl|\dxl|xs\/s|m\/l|mini|small|medium|large|maxi|klein|kleine|groot|grote|middel|midi|big|petite|piccolo|piccola|grande|medio|media|petit|grand|extra|one ?size)$/i;
+const notColor=words=>words.length>0&&words.every(w=>NOT_COLOR.test(w));
+function applyColor(r,s,l){r.color=r._tok.slice(s,s+l).join(" ");r.model=[...r._tok.slice(0,s),...r._tok.slice(s+l)].filter(t=>!/^[\/&+]$/.test(t)).join(" ")}
+/* Kleuren leren uit de lijst: binnen dezelfde serie + producttype zijn de woorden die steeds terugkomen het model,
+   en de woorden die per product verschillen de kleur. Kleuren die zo gevonden zijn, worden daarna ook bij losse producten herkend. */
+function resolveColors(rows,colorSet){
+  const learned=new Set(), fam=new Map(), pending=[];
+  rows.forEach(r=>{if(r._fixed)return;const k=low([r.brand,r.series,r.type].join("|"));if(!fam.has(k))fam.set(k,[]);fam.get(k).push(r)});
+  for(const g of [...fam.values()].sort((a,b)=>b.length-a.length)){
+    const n=g.length,cnt={};
+    g.forEach(r=>new Set(r._tok.map(low)).forEach(t=>cnt[t]=(cnt[t]||0)+1));
+    const common=new Set(n>1?Object.keys(cnt).filter(t=>cnt[t]===n):[]);
+    const ext=t=>!common.has(low(t))&&(colorSet.has(low(t))||MODIFIERS.has(low(t)));
+    const modelV=new Set(common);
+    /* Een onbekend woord vóór een bekende kleur hoort erbij als het even vaak voorkomt (Fjord Blue, Ink Black) */
+    const leftOk=(r,i,s0)=>{const t=low(r._tok[i]);if(ext(r._tok[i]))return true;
+      if(n<2||common.has(t)||QUALIFIERS.has(t)||/\d/.test(t)||NOT_COLOR.test(t))return false;return cnt[t]===cnt[low(r._tok[s0])]&&cnt[t]<n};
+    const isCW=t=>colorSet.has(low(t))||MODIFIERS.has(low(t));
+    g.forEach(r=>{if(!r._km)return;let [s0,l]=r._km;
+      let unk=0;
+      while(s0>0&&leftOk(r,s0-1,s0)){const isExt=ext(r._tok[s0-1]);if(!isExt){if(unk>=1)break;unk++}s0--;l++} for(;;){if(s0+l<r._tok.length&&ext(r._tok[s0+l])){l++;continue}
+        if(/^[\/&+]$/.test(r._tok[s0+l]||"")&&s0+l+1<r._tok.length){let k=s0+l+1,add=0;
+          while(k<r._tok.length&&add<2&&/^[A-Za-zÀ-ÿ]+$/.test(r._tok[k])&&(isCW(r._tok[k])||!common.has(low(r._tok[k])))&&!NOT_COLOR.test(r._tok[k])&&!QUALIFIERS.has(low(r._tok[k]))&&!/^(plaid|print|check|checked|stripe|striped|camo|ruit|geruit|gestreept)$/i.test(r._tok[k])){k++;add++}
+          if(add){l=k-s0;continue}}
+        if(/^[\/&+]$/.test(r._tok[s0+l]||"")&&s0+l+1<r._tok.length&&isCW(r._tok[s0+l+1])){l+=2;continue} break}
+      for(;;){if(s0>1&&/^[\/&+]$/.test(r._tok[s0-1])){let k=s0-2,add=0;
+          while(k>=0&&add<2&&/^[A-Za-zÀ-ÿ]+$/.test(r._tok[k])&&(isCW(r._tok[k])||!common.has(low(r._tok[k]))&&!NOT_COLOR.test(r._tok[k])&&!QUALIFIERS.has(low(r._tok[k])))){k--;add++;if(isCW(r._tok[k+1]))break}
+          if(add){l+=s0-(k+1);s0=k+1;continue}} break}
+      if(n===1){const lm=findColor(r._tok,learned);if(lm&&lm[1]>l&&lm[0]<=s0&&lm[0]+lm[1]>=s0+l){s0=lm[0];l=lm[1]}}
+      applyColor(r,s0,l); r._tok.forEach((t,i)=>{if(i<s0||i>=s0+l)modelV.add(low(t))}); learned.add(low(r.color))});
+    g.forEach(r=>{if(r._km)return;
+      r._cand=r._tok.map((t,i)=>i).filter(i=>!modelV.has(low(r._tok[i]))&&(i>=(r._pre||0)||colorSet.has(low(r._tok[i]))));
+      if(n>1&&r._cand.length&&r._cand.length<=3&&!notColor(r._cand.map(i=>r._tok[i]))) learned.add(low(r._cand.map(i=>r._tok[i]).join(" ")));
+      pending.push(r)});
+  }
+  pending.forEach(r=>{
+    const lm=findColor(r._tok,learned);
+    if(lm){applyColor(r,lm[0],lm[1]);r.colorLearned=true;return}
+    const c=r._cand;
+    if(notColor(c.map(i=>r._tok[i]))){
+      const ws=c.map(i=>r._tok[i]);
+      /* duidelijke maatwoorden (Large, Medium, XL, Mini) zijn een maat: geen twijfel, gewoon andere maat */
+      /* ook getallen (Mauk 1 / Mauk 2): net iets andere uitvoering -> serie-items */
+      if(ws.every(w=>SIZE_WORD.test(w)||/^(\d+([.,]\d+)?|[ivx]{1,4})$/i.test(w))){r.color="";r.size=[r.size,ws.join(" ")].filter(Boolean).join(" ");r.model=r._tok.filter((t,i)=>!c.includes(i)).join(" ");return}
+      r.color="";r.model=r._tok.join(" ");r.ambiguous=ws.join(" ");return}
+    const STOPW=/^(van|met|en|in|uit|voor|op|de|het|een|of|with|and|the|of|for|\/|&|\+|-)$/i;
+    const c2=c.filter(i=>!NOT_COLOR.test(r._tok[i])&&!STOPW.test(r._tok[i])&&!QUALIFIERS.has(low(r._tok[i]))); if(c2.length!==c.length){c.length=0;c.push(...c2)}
+    if(c.length){
+      if(c[c.length-1]-c[0]+1===c.length) applyColor(r,c[0],c.length);
+      else{r.color=c.map(i=>r._tok[i]).join(" ");r.model=r._tok.filter((t,i)=>!c.includes(i)).join(" ")}
+      const knownW=w=>colorSet.has(low(w))||MODIFIERS.has(low(w));
+      r.colorLearned=true; r.colorUnsure=c.length>=3||(c.length>=2&&!c.some(i=>knownW(r._tok[i])));
+    } else {r.color="";r.model=r._tok.join(" ")}
+  });
+}
+function matchSeq(toks,phrase){const p=low(phrase).split(" ");for(let i=0;i+p.length<=toks.length;i++){if(p.every((w,k)=>low(toks[i+k])===w))return [i,p.length]}return null}
+function findColor(toks,colorSet){
+  for(let len=3;len>=1;len--) for(let i=0;i+len<=toks.length;i++){const ph=low(toks.slice(i,i+len).join(" "));if(colorSet.has(ph))return [i,len]}
+  return null;
+}
+
+/* ---------- Groeperen ---------- */
+function synonymMap(){const m={};$("#synonyms").value.split("\n").forEach(line=>{const p=line.split("=").map(norm).filter(Boolean);if(p.length>1)p.forEach(x=>m[low(x)]=p[0])});return m}
+function slug(s){return norm(s).toUpperCase().replace(/,/g,".").replace(/\s+/g,"").replace(/[^A-Z0-9.×]/g,"")}
+function abbr(b){return b?b.split(/\s+/).map(w=>w[0]).join("").toUpperCase():"X"}
+let sibCount={}, sibColor={};
+const sibKey=r=>[r.brand,r.series,r.type,r.set].map(low).join("|");
+function issuesOf(r){
+  const out=[];
+  if(!r.series&&!r.type) out.push("Geen serie of producttype gevonden");
+  const hasSib=(sibCount[sibKey(r)]||0)>1;
+  if(!r.color&&r.ambiguous&&hasSib) out.push(`Onduidelijk verschil "${r.ambiguous}": waarschijnlijk een maat of uitvoering, geen kleur. Niet automatisch gekoppeld.`);
+  else if(!r.color&&sibColor[sibKey(r)]) out.push("Geen kleur gevonden, terwijl er andere producten van "+[r.series,r.type].filter(Boolean).join(" ")+" in de lijst staan");
+  else if(r.colorUnsure&&hasSib) out.push(`Onduidelijk welk deel de kleur is ("${r.color}"). Niet automatisch gekoppeld.`);
+  return out;
+}
+/* Vangnet: producten die nog in geen kleurgroep zitten, maar waarvan de titel gelijk is op de laatste 1-3 woorden na,
+   en die laatste woorden zijn (meestal) een kleur. Werkt ook als merk of serie niet herkend zijn. */
+function suffixGroups(together){
+  const learnedC=new Set(rows.filter(r=>r.color).flatMap(r=>low(r.color).split(" ")));
+  const known=w=>COLORS[w]!==undefined||MODIFIERS.has(w)||learnedC.has(w);
+  const colorish=sf=>low(sf).split(" ").some(known);
+  const allColor=sf=>low(sf).split(" ").every(known);
+  const tokOf=r=>r.base.replace(SET_RE," ").replace(SIZE_RE," ").replace(DIM_RE," ").replace(/[()]/g," ").split(/\s+/).filter(Boolean);
+  for(let k=1;k<=2;k++){
+    const m=new Map();
+    rows.filter(r=>r.parent==null&&!r.kv).forEach(r=>{const t=tokOf(r);if(t.length<k+2)return;
+      if(t.length-k<3) return; /* stam moet meer zijn dan type + merk */
+      const stem=t.slice(0,-k).join(" "), key=[low(stem),together?"":low(r.size),low(r.set)].join("|");
+      if(!m.has(key))m.set(key,[]);m.get(key).push({r,suf:t.slice(-k).join(" "),stem})});
+    for(const arr of m.values()){
+      if(arr.length<2) continue;
+      const sufs=arr.map(a=>low(a.suf)); if(new Set(sufs).size!==sufs.length) continue;
+      if(k>1){const sets=arr.map(a=>new Set(low(a.suf).split(" ")));let ov=false;
+        for(let i=0;i<sets.length&&!ov;i++)for(let j=i+1;j<sets.length&&!ov;j++)for(const w of sets[i])if(sets[j].has(w)){ov=true;break}
+        if(ov) continue;}
+      if(arr.some(a=>a.suf.split(" ").some(w=>/\d/.test(w)||NOT_COLOR.test(w)))) continue;
+      if(k===1&&arr.filter(a=>colorish(a.suf)).length<arr.length/2) continue;
+      if(k===2&&!arr.every(a=>allColor(a.suf))) continue;
+      if(!arr.some(a=>low(a.suf).split(" ").some(w=>COLORS[w]!==undefined||MODIFIERS.has(w)))&&!arr.every(a=>checked.has(a.r.idx))) continue;
+      const r0=arr[0].r, g={brand:r0.brand,series:arr[0].stem,type:"",model:"",size:together?"":r0.size,set:r0.set,rows:arr.map(a=>a.r)};
+      g.id="X-KV-"+slug(g.series)+(g.size?"-"+slug(g.size):"")+(g.set?"-"+slug(g.set):"");
+      g.name=[g.series,g.size,g.set].filter(Boolean).join(" ");
+      arr.forEach(a=>{a.r.color=a.suf;a.r.colorUnsure=false;a.r.kv=g.id;a.r.issues=a.r.issues.filter(x=>!/kleur/i.test(x))});
+      groups.kv.push(g);
+    }
+  }
+  groups.kv.sort((a,b)=>a.name.localeCompare(b.name));
+}
+let manual=[], sel=new Set(), ui={aKind:"kv",mKind:"kv",aGroup:"",mName:"",mTyped:false,msg:"",sx:{}}, suggestions=[];
+function applyManual(){
+  manual.forEach(m=>{
+    if(m.type==="dismiss"){m.idxs.forEach(i=>{const r=rows[i];if(r){r.issues=[];r.dismissed=true}});return}
+    const list=groups[m.kind]; let g=list.find(x=>x.id===m.gid);
+    if(!g){ if(m.type==="add"){m.broken=true;return}
+      g={id:m.gid,name:m.name,brand:"",series:m.name,type:"",model:"",size:"",set:"",color:"",rows:[],manual:true}; list.push(g); }
+    m.broken=false;
+    m.idxs.forEach(i=>{const r=rows[i]; if(!r) return;
+      const old=r[m.kind]; if(old&&old!==g.id){const og=list.find(x=>x.id===old); if(og) og.rows=og.rows.filter(x=>x!==r)}
+      if(!g.rows.includes(r)) g.rows.push(r); r[m.kind]=g.id; r.issues=[]; r.manual=true;});
+  });
+  for(const k of ["kv","si"]){
+    groups[k]=groups[k].filter(g=>g.rows.length>1||g.manual);
+    const ids=new Set(groups[k].map(g=>g.id)); rows.forEach(r=>{if(r[k]&&!ids.has(r[k]))r[k]=""});
+  }
+}
+function regroup(){
+  const together=$("#sizesTogether").checked, syn=synonymMap();
+  suggestions=[];
+  sibCount={}; sibColor={}; rows.forEach(r=>{if(r.parent==null){const k=sibKey(r);sibCount[k]=(sibCount[k]||0)+1;if(r.color)sibColor[k]=true}});
+  rows.forEach(r=>{r.issues=r.parent!=null?[]:issuesOf(r);r.kv="";r.si="";r.colorDetail="";r.noColor=false});
+  const kv=new Map(), si=new Map();
+  rows.forEach(r=>{
+    if(r.parent==null&&!r.color&&!r.ambiguous&&r.series&&r.brand&&!sibColor[sibKey(r)]){
+      const sk=[r.brand,r.series,""].map(low).join("|");
+      if(!si.has(sk)) si.set(sk,{key:sk,brand:r.brand,series:r.series,color:"",rows:[]});
+      si.get(sk).rows.push(r); return;
+    }
+    if(r.parent!=null||(!r.series&&!r.type)||!r.color||(r.colorUnsure&&!checked.has(r.idx))) return;
+    const kk=[r.brand,r.series,r.type,r.model,together?"":r.size,r.set].map(low).join("|");
+    if(!kv.has(kk)) kv.set(kk,{key:kk,brand:r.brand,series:r.series,type:r.type,model:r.model,size:together?"":r.size,set:r.set,rows:[]});
+    kv.get(kk).rows.push(r);
+    const canon=syn[low(r.color)]||r.color;
+    const sk=[r.brand,r.series,canon].map(low).join("|");
+    if(r.series&&r.brand){
+      if(!si.has(sk)) si.set(sk,{key:sk,brand:r.brand,series:r.series,color:canon,rows:[]});
+      si.get(sk).rows.push(r);
+    }
+  });
+  groups.kv=[...kv.values()].filter(g=>g.rows.length>1).map(g=>{
+    g.id=`${abbr(g.brand)}-KV-${slug(g.series)}-${slug(g.type)}${g.model?"-"+slug(g.model):""}${g.size?"-"+slug(g.size):""}${g.set?"-"+slug(g.set):""}`;
+    const seen={}; g.rows.forEach(r=>{const c=low(r.color)+(together?"|"+low(r.size):"");(seen[c]=seen[c]||[]).push(r)});
+    Object.values(seen).forEach(a=>{if(a.length<2)return;
+      /* Zelfde kleur, maar de omschrijving verschilt (staal met houteffect / geborsteld metaal):
+         gebruik de woorden die verschillen als extra onderscheid binnen de kleurgroep */
+      const STOP=/^(van|met|en|in|uit|voor|op|de|het|een|of|with|and|the|for)$/i;
+      const words=r=>(r._tok||[]).filter(w=>!STOP.test(w)&&!low(r.color).split(" ").includes(low(w))&&!/^\d/.test(w));
+      const all=a.map(words), inAll=w=>all.every(ws=>ws.some(x=>low(x)===low(w)));
+      const labels=all.map(ws=>ws.filter(w=>!inAll(w)).slice(0,4).join(" "));
+      if(labels.every(Boolean)&&new Set(labels.map(low)).size===labels.length){a.forEach((r,i)=>r.colorDetail=labels[i]);return}
+      a.forEach(r=>{const others=a.filter(x=>x!==r);
+        if(others.every(x=>low(x.title)===low(r.title))) r.issues.push(`Staat ${a.length}× in de lijst (ID ${a.map(x=>x.id||"#"+(x.idx+1)).join(", ")})`);
+        else r.issues.push(`Zelfde kleur${together&&r.size?" en maat":""} in dezelfde groep als: ${others.map(x=>x.title).join(" / ")}`)})});
+    g.name=[g.brand,g.series,g.type,g.model,g.size,g.set].filter(Boolean).join(" ");
+    g.rows.forEach(r=>r.kv=g.id); return g;
+  }).sort((a,b)=>a.id.localeCompare(b.id));
+  /* Een kleurgroep zonder één bekende kleur is te vaag (Sferica / Cilindrica): niet koppelen, tenzij alle producten gecontroleerd zijn */
+  const extraKC=new Set(list($("#extraColors").value).map(low));
+  const knownWord=w=>COLORS[w]!==undefined||MODIFIERS.has(w)||extraKC.has(w);
+  groups.kv=groups.kv.filter(g=>{
+    if(g.rows.some(r=>low(r.color).split(" ").some(knownWord))||g.rows.every(r=>checked.has(r.idx))) return true;
+    /* Uitzondering: titels zijn gelijk op het laatste woord na, en dat woord is de kleur (Parka Carbon / Parka Octane) */
+    const tk=r=>r.base.replace(SET_RE," ").replace(SIZE_RE," ").replace(DIM_RE," ").replace(/[()]/g," ").split(/\s+/).filter(Boolean);
+    const ts=g.rows.map(tk), stem=t=>low(t.slice(0,-1).join(" "));
+    if(ts.every(t=>t.length>=5&&stem(t)===stem(ts[0]))&&g.rows.every((r,i)=>{const w=ts[i][ts[i].length-1];return /^[A-Za-zÀ-ÿ]+$/.test(w)&&!NOT_COLOR.test(w)&&low(w)===low(r.color)})
+       &&new Set(ts.map(t=>low(t[t.length-1]))).size===ts.length) return true;
+    /* Onbekende woorden + verschillende maten (Miyagi City Small / City Large): het woord is een motief, geen kleur.
+       Geen kleurgroep tussen motieven; de serie-groep per motief koppelt de maten. */
+    if(!together&&g.rows.every(r=>r.size)&&rows.some(o=>o.parent==null&&!g.rows.includes(o)&&g.rows.some(r=>low(o.series)===low(r.series)&&low(o.color)===low(r.color)&&low(o.size)!==low(r.size)))){
+      g.rows.forEach(r=>{r.kv=""}); return false;
+    }
+    /* Print/uitvoering als laatste deel na een streepje (Tafellamp - Nomadic / - Zig Zag): dat deel is de kleur */
+    const sgs=g.rows.map(r=>r.base.split(/\s+[-–]\s+/).map(norm).filter(Boolean));
+    if(sgs.every(x=>x.length>=2&&low(x.slice(0,-1).join("|"))===low(sgs[0].slice(0,-1).join("|")))&&g.rows.every((r,i)=>low(sgs[i][sgs[i].length-1])===low(r.color))
+       &&new Set(sgs.map(x=>low(x[x.length-1]))).size===sgs.length) return true;
+    /* Verschil staat niet aan het eind van de titel (Rodi Pendant / Evert Pendant): verschillende modellen in dezelfde serie -> serie-items */
+    for(;;){const lasts=g.rows.map(r=>r.color.split(/\s+/));if(lasts.some(w=>w.length<2))break;const lw=low(lasts[0][lasts[0].length-1]);
+      if(!lasts.every(w=>low(w[w.length-1])===lw))break; g.rows.forEach(r=>{const w=r.color.split(/\s+/);r.model=[w.pop(),r.model].filter(Boolean).join(" ");r.color=w.join(" ")})}
+    const atEnd=g.rows.every((r,i)=>low(ts[i][ts[i].length-1])===low(r.color.split(/\s+/).pop()));
+    if(!atEnd&&g.rows.every(r=>r.brand&&r.series)){
+      const r0=g.rows[0], key=[r0.brand,r0.series,""].map(low).join("|");
+      if(!si.has(key)) si.set(key,{key,brand:r0.brand,series:r0.series,color:"",rows:[]});
+      g.rows.forEach(r=>{r.kv="";r.model=[r.color,r.model].filter(Boolean).join(" ");r.color="";si.get(key).rows.push(r)});
+      return false;
+    }
+    const cols=g.rows.map(x=>x.color).join(", ");
+    g.rows.forEach(r=>{r.kv="";r.issues.push(`Onduidelijk of dit kleuren zijn (${cols}): geen bekende kleur gevonden. Zie de voorstellen bovenaan.`)});
+    suggestions.push({id:"s-"+g.id,kind:"kv",name:g.name,idxs:g.rows.map(r=>r.idx),reason:`Mogelijk kleurvarianten (${cols}), maar geen van deze woorden is een bekende kleur.`});
+    return false;
+  });
+  /* Motieven per maat (Miyagi Jungle/City/Bird/Ocean Small): als de meeste woorden geen kleur zijn en hetzelfde motief
+     ook in een andere maat bestaat, is het geen kleurgroep. De serie-groep per motief koppelt de maten. */
+  if(!together) groups.kv=groups.kv.filter(g=>{
+    if(g.manual||!g.rows.every(r=>r.size)) return true;
+    const unk=g.rows.filter(r=>!low(r.color).split(/[\s\/&+]+/).filter(Boolean).some(knownWord)).length;
+    if(unk*2<g.rows.length) return true;
+    const cross=g.rows.filter(r=>rows.some(o=>o!==r&&o.parent==null&&low(o.brand)===low(r.brand)&&low(o.series)===low(r.series)&&low(o.color)===low(r.color)&&low(o.size)!==low(r.size))).length;
+    if(cross*2<g.rows.length) return true;
+    g.rows.forEach(r=>{r.kv=""}); return false;
+  });
+  suffixGroups(together);
+  groups.si=[...si.values()].filter(g=>new Set(g.rows.map(r=>low([r.type,r.model,together?"":r.size,r.set].join("|")))).size>1).map(g=>{
+    g.id=`${abbr(g.brand)}-SI-${slug(g.series)}-${slug(g.color)}`; g.name=[g.brand,g.series,g.color].filter(Boolean).join(" "); g.rows.forEach(r=>r.si=g.id); return g;
+  }).sort((a,b)=>a.id.localeCompare(b.id));
+  const fam=new Map();
+  rows.forEach(r=>{if(r.parent==null&&!r.kv&&(r.colorUnsure||r.ambiguous)&&r.issues.length){const k=sibKey(r);if(!fam.has(k))fam.set(k,[]);fam.get(k).push(r)}});
+  fam.forEach(a=>{if(a.length<2)return; const amb=a.every(r=>r.ambiguous);
+    suggestions.push({id:"f-"+sibKey(a[0]),kind:amb?"si":"kv",name:[a[0].brand,a[0].series,a[0].type].filter(Boolean).join(" "),idxs:a.map(r=>r.idx),
+      reason:amb?`Verschillen alleen in ${a.map(r=>'"'+r.ambiguous+'"').join(", ")}: waarschijnlijk maat of uitvoering.`:`Zelfde serie en type, maar onduidelijk welk deel de kleur is.`})});
+  /* Variant zonder kleur in de titel (Pontus Vaas naast Pontus Vaas Green): voeg toe aan de groep met exact dezelfde naam */
+  const plain=rows.filter(r=>r.parent==null&&!r.color&&!r.kv&&r.series&&r.issues.some(x=>/^Geen kleur gevonden/.test(x)));
+  const kvKey=r=>[r.brand,r.series,r.type,r.model,together?"":r.size,r.set].map(low).join("|");
+  const byKey={}; plain.forEach(r=>{const k=kvKey(r);(byKey[k]=byKey[k]||[]).push(r)});
+  plain.forEach(r=>{
+    const k=kvKey(r); if(byKey[k].length>1) return;
+    let g=groups.kv.find(x=>!x.manual&&x.rows.length&&x.rows.every(m=>kvKey(m)===k));
+    if(g){g.rows.push(r);r.kv=g.id;r.issues=r.issues.filter(x=>!/^Geen kleur gevonden/.test(x));r.noColor=true;return}
+    /* nog geen kleurgroep, wel gekleurde variant(en) met exact dezelfde naam: maak de groep */
+    const sibs=rows.filter(m=>m!==r&&m.parent==null&&m.color&&!m.kv&&kvKey(m)===k&&!m.colorUnsure);
+    if(sibs.length&&new Set(sibs.map(m=>low(m.color))).size===sibs.length){
+      const s0=sibs[0], id=`${abbr(s0.brand)}-KV-${slug(s0.series)}-${slug(s0.type)}${s0.model?"-"+slug(s0.model):""}${!together&&s0.size?"-"+slug(s0.size):""}${s0.set?"-"+slug(s0.set):""}-N`;
+      g={id,brand:s0.brand,series:s0.series,type:s0.type,model:s0.model,size:together?"":s0.size,set:s0.set,rows:[...sibs,r]};
+      g.name=[g.brand,g.series,g.type,g.model,g.size,g.set].filter(Boolean).join(" ");
+      g.rows.forEach(m=>{m.kv=id;m.issues=m.issues.filter(x=>!/^Geen kleur gevonden/.test(x))}); r.noColor=true; groups.kv.push(g); return;
+    }
+    /* geen kleurgroep met precies deze naam: bij een serie-groep zonder kleur van dezelfde serie */
+    g=groups.si.find(x=>!x.manual&&!x.color&&low(x.brand)===low(r.brand)&&low(x.series)===low(r.series));
+    if(g){g.rows.push(r);r.si=g.id;r.issues=r.issues.filter(x=>!/^Geen kleur gevonden/.test(x));return}
+    /* kleurgroep van hetzelfde product in een andere maat/uitvoering bestaat: koppel als serie-item met die maten */
+  });
+  applyManual();
+  suggestions=suggestions.map(sg=>({...sg,idxs:sg.idxs.filter(i=>rows[i]&&rows[i].issues.length&&!rows[i].dismissed)})).filter(sg=>sg.idxs.length>=2);
+  const seenN={}; [...groups.kv,...groups.si].forEach(g=>{const k=low(g.name);seenN[k]=(seenN[k]||0)+1;if(seenN[k]>1)g.name+=` (${seenN[k]})`});
+  const ids=new Set([...groups.kv,...groups.si].map(g=>g.id));
+  [...approved].forEach(id=>{if(!ids.has(id))approved.delete(id)});
+  render();
+}
+
+/* ---------- Weergave ---------- */
+function swatch(name){
+  const v=COLORS[low(name)];
+  if(v==="multi") return `<span class="sw" style="background:conic-gradient(#d9534f,#f0ad4e,#5cb85c,#5bc0de,#6a4c93,#d9534f)"></span>`;
+  if(v) return `<span class="sw" style="background:${v}" title="Indicatieve kleur"></span>`;
+  return `<span class="sw" title="Onbekende of transparante kleur"></span>`;
+}
+function whyAlone(r){
+  const same=rows.filter(x=>x!==r&&x.parent==null&&low(x.brand)===low(r.brand)&&low(x.series)===low(r.series)&&low(x.type)===low(r.type)&&low(x.model)===low(r.model)&&low(x.set)===low(r.set));
+  const what=[r.series,r.type,r.model].filter(Boolean).join(" ")||"deze serie";
+  if(r.size&&!$("#sizesTogether").checked&&same.some(x=>low(x.color)!==low(r.color))) return {size:true,text:`Andere kleuren van ${what} bestaan wel, maar niet in maat ${r.size}`};
+  if(same.length) return {text:`Van ${what} staat alleen ${r.color} in de lijst (in andere maten)`};
+  return {text:`Enige product van ${what} in de lijst`};
+}
+function breakdown(){
+  const c={kv:0,si:0,var:0,check:0,alone:0,size:0};
+  rows.forEach(r=>{if(r.parent!=null)c.var++;else if(r.kv)c.kv++;else if(r.si)c.si++;
+    else if(r.issues.length&&!checked.has(r.idx))c.check++;else{c.alone++;if(whyAlone(r).size)c.size++}});
+  return c;
+}
+function renderWhere(){
+  const w=$("#where"); if(!rows.length){w.hidden=true;return} w.hidden=false;
+  const c=breakdown(), segs=[["kv","In een kleurvariant-groep"],["si","Alleen in een serie-items-groep"],["var","Maatvariant, overgeslagen"],["check","Te controleren"],["alone","Geen match in deze lijst"]];
+  w.innerHTML=`<div class="section-title"><h2>Waar staan de ${rows.length} producten?</h2></div>
+    <div class="bar" role="img" aria-label="Verdeling van de producten">${segs.map(([k])=>c[k]?`<span class="c-${k}" style="flex:${c[k]}"></span>`:"").join("")}</div>
+    <div class="legend">${segs.map(([k,l])=>`<span class="it"><span class="dot c-${k}"></span>${l}: <b>${c[k]}</b></span>`).join("")}</div>
+    ${c.size?`<div class="notice"><b>${c.size} producten</b> staan los omdat hun kleur alleen in een andere maat voorkomt. Wil je kleuren over maten heen koppelen, zet dan <b>"Maten in hetzelfde keuzemenu als kleuren"</b> aan.</div>`:""}
+    ${c.alone||c.check?`<div><button class="linkbtn" data-tabgo="check">Bekijk per product waarom het niet gekoppeld is</button></div>`:""}`;
+}
+function openRows(){return rows.filter(r=>r.issues.length&&!checked.has(r.idx))}
+function singles(){return rows.filter(r=>r.parent==null&&!r.issues.length&&!r.kv&&!r.si)}
+function render(){
+  const flagged=openRows().length, appr=[...groups.kv,...groups.si].filter(g=>approved.has(g.id)).length, total=groups.kv.length+groups.si.length;
+  $("#stats").innerHTML=`
+    <div class="stat"><b>${rows.length}</b><span>producten</span></div>
+    ${rows.some(r=>r.parent!=null)?`<div class="stat"><b>${rows.filter(r=>r.parent!=null).length}</b><span>maatvarianten overgeslagen</span></div>`:""}
+    <div class="stat"><b>${groups.kv.length}</b><span>kleurvariant-groepen</span></div>
+    <div class="stat"><b>${groups.si.length}</b><span>serie-items-groepen</span></div>
+    <div class="stat ${flagged?"warn":""}"><b>${flagged}</b><span>te controleren</span></div>
+    <div class="stat ${total&&appr===total?"ok":""}"><b>${appr}/${total}</b><span>groepen goedgekeurd</span></div>`;
+  $("#n-kv").textContent=groups.kv.length; $("#n-si").textContent=groups.si.length;
+  $("#n-check").textContent=flagged; $("#n-all").textContent=rows.length;
+  renderWhere();
+  ({kv:viewKV,si:viewSI,check:viewCheck,all:viewAll,export:viewExport})[current]();
+}
+function toolbar(kind){
+  const gs=groups[kind]; const n=gs.filter(g=>approved.has(g.id)).length;
+  return `<div class="toolbar"><span class="meta">${n} van ${gs.length} goedgekeurd</span>
+    <div class="row"><button class="small" data-bulk="${kind}" data-on="1">Alles goedkeuren</button><button class="small" data-bulk="${kind}" data-on="0">Goedkeuring wissen</button></div></div>`;
+}
+function approveBtn(id){const on=approved.has(id);return `<button class="small approve" data-approve="${esc(id)}" aria-pressed="${on}">${on?"Goedgekeurd":"Goedkeuren"}</button>`}
+function viewKV(){
+  if(!groups.kv.length) return $("#view").innerHTML=`<div class="toolbar"></div><div class="empty">Geen kleurvarianten gevonden in deze lijst.</div>`;
+  const together=$("#sizesTogether").checked;
+  $("#view").innerHTML=toolbar("kv")+`<div class="cards">${groups.kv.map(g=>`
+    <article class="card ${approved.has(g.id)?"approved":""}">
+      <div class="card-head"><div><h3>${esc([g.series,g.type].filter(Boolean).join(" "))}${g.model?" · "+esc(g.model):""}</h3>
+        <div class="meta">${g.rows.length} uitvoeringen${g.size?" · "+esc(g.size):""}${g.set?" · "+esc(g.set):""}${g.manual?" · handmatig":""}</div></div>${approveBtn(g.id)}</div>
+      <div class="chips">${g.rows.map(r=>`<span class="chip ${r.issues.length&&!checked.has(r.idx)?"warn":""}" title="${esc(r.title)}">${swatch(r.color)}${r.color?esc(r.color):"<i>geen kleur in titel</i>"}${r.colorDetail?" · "+esc(r.colorDetail):""}${together&&r.size?" · "+esc(r.size):""}${r.set?" · "+esc(r.set):""}</span>`).join("")}</div>
+      <div class="gid"><span class="eyebrow">Groepsnaam</span><br>${esc(g.name)}</div>
+    </article>`).join("")}</div>`;
+}
+function viewSI(){
+  if(!groups.si.length) return $("#view").innerHTML=`<div class="toolbar"></div><div class="empty">Geen serie-items gevonden: er zijn geen series met meerdere producttypes in dezelfde kleur.</div>`;
+  $("#view").innerHTML=toolbar("si")+`<div class="cards">${groups.si.map(g=>`
+    <article class="card ${approved.has(g.id)?"approved":""}">
+      <div class="card-head"><div><h3 style="display:flex;gap:8px;align-items:center">${g.manual?esc(g.name):g.color?swatch(g.color)+esc(g.series)+" in "+esc(g.color):esc(g.series)+" (zonder kleur)"}</h3>
+        <div class="meta">${g.rows.length} producten${g.manual?" · handmatig":""}</div></div>${approveBtn(g.id)}</div>
+      <ul class="items">${g.rows.map(r=>`<li><span>${esc(r.type)}${r.model?" "+esc(r.model):""}</span><span class="meta">${esc([r.size,r.set,r.color!==g.color?r.color:""].filter(Boolean).join(" · "))}</span></li>`).join("")}</ul>
+      <div class="gid"><span class="eyebrow">Groepsnaam</span><br>${esc(g.name)}</div>
+    </article>`).join("")}</div>`;
+}
+function commonPrefix(titles){
+  const w=titles.map(t=>t.split(/\s+/)); if(!w.length) return ""; const out=[];
+  for(let i=0;i<w[0].length;i++){const x=low(w[0][i]); if(w.every(a=>a[i]&&low(a[i])===x)) out.push(w[0][i]); else break}
+  return out.join(" ");
+}
+function suggestName(){
+  const t=[...sel].map(i=>rows[i]&&rows[i].title).filter(Boolean);
+  if(!t.length) return ""; const cp=commonPrefix(t);
+  return cp.split(" ").length>=2?cp:t[0];
+}
+function groupOptions(kind){
+  const t=[...sel].map(i=>rows[i]).filter(Boolean)[0];
+  const words=t?new Set(low(t.title).split(/\s+/)):new Set();
+  return groups[kind].map(g=>({g,score:low(g.name).split(/\s+/).filter(w=>words.has(w)).length}))
+    .sort((a,b)=>b.score-a.score||a.g.name.localeCompare(b.g.name));
+}
+function itemRow(r,body,actions,cls){
+  return `<div class="issue ${cls||""}"><label class="pick"><input type="checkbox" data-sel="${r.idx}" ${sel.has(r.idx)?"checked":""} aria-label="Selecteer ${esc(r.title)}"></label>
+    <div style="flex:1;min-width:0">${body}</div>${actions}</div>`;
+}
+function viewCheck(){
+  const open=openRows(), single=singles(), n=sel.size;
+  if(!ui.mTyped) ui.mName=suggestName();
+  const opts=groupOptions(ui.aKind);
+  if(!opts.some(o=>o.g.id===ui.aGroup)) ui.aGroup=opts[0]?opts[0].g.id:"";
+  const kindSel=(id,v)=>`<select id="${id}"><option value="kv" ${v==="kv"?"selected":""}>Kleurvarianten</option><option value="si" ${v==="si"?"selected":""}>Serie-items</option></select>`;
+  const mlist=manual.length?`<div class="mlist"><div class="eyebrow">Handmatige koppelingen</div>${manual.map(m=>{
+      const g=groups[m.kind].find(x=>x.id===m.gid); const nm=g?g.name:(m.name||"groep bestaat niet meer");
+      if(m.type==="dismiss") return `<div class="row" style="justify-content:space-between"><span>Niet koppelen: <b>${esc(m.name||"")}</b> · ${m.idxs.length} producten</span><button class="small" data-undo="${esc(m.id)}">Ongedaan maken</button></div>`;
+      return `<div class="row" style="justify-content:space-between"><span>${m.type==="new"?"Nieuwe groep":"Toegevoegd aan"} <b>${esc(nm)}</b> (${m.kind==="kv"?"kleurvarianten":"serie-items"}) · ${m.idxs.length} product${m.idxs.length>1?"en":""}${m.broken?` <span style="color:var(--warn)">· groep niet gevonden</span>`:""}</span>
+        <button class="small" data-undo="${esc(m.id)}">Ongedaan maken</button></div>`}).join("")}</div>`:"";
+  $("#view").innerHTML=`<div class="toolbar"><span class="meta">Vink producten aan om ze zelf te koppelen, pas velden aan bij Alle producten, of markeer een product als gecontroleerd.</span></div>
+    <div class="panel manual">
+      <div class="row" style="justify-content:space-between"><b>${n} product${n===1?"":"en"} geselecteerd</b>
+        <span class="row"><button class="small" data-selall="1">Alles hieronder selecteren</button><button class="small" data-selnone="1" ${n?"":"disabled"}>Selectie wissen</button></span></div>
+      <div class="mgrid">
+        <div class="mbox"><h3>Toevoegen aan bestaande groep</h3>
+          <div class="mrow">${kindSel("aKind",ui.aKind)}
+            <select id="aGroup" ${opts.length?"":"disabled"}>${opts.length?opts.map(o=>`<option value="${esc(o.g.id)}" ${o.g.id===ui.aGroup?"selected":""}>${o.score>1?"★ ":""}${esc(o.g.name)} (${o.g.rows.length})</option>`).join(""):`<option>Nog geen groepen</option>`}</select></div>
+          <button class="primary" data-mk="add" ${n&&opts.length?"":"disabled"}>Toevoegen</button>
+          <span class="hint">★ = groep die op het eerst geselecteerde product lijkt.</span></div>
+        <div class="mbox"><h3>Nieuwe groep maken</h3>
+          <div class="mrow">${kindSel("mKind",ui.mKind)}<input id="mName" class="txt" value="${esc(ui.mName)}" placeholder="Groepsnaam" aria-label="Naam van de nieuwe groep"></div>
+          <button class="primary" data-mk="new" ${n>=2?"":"disabled"}>Groep maken</button>
+          <span class="hint">Kies minstens 2 producten. De naam komt zo in de CSV.</span></div>
+      </div>
+      ${ui.msg?`<div class="notice">${ui.msg}</div>`:""}
+      ${mlist}
+    </div>
+    ${suggestions.length?`<div class="section-title" style="margin:18px 0 10px"><h2>Voorstellen</h2><span class="meta">${suggestions.length} mogelijke groepen. Kijk of ze bij elkaar passen en kies wat de tool moet doen.</span></div>
+    <div class="cards">${suggestions.map(sg=>{const ex=ui.sx[sg.id]||new Set();return `<article class="card sugg">
+      <div><h3>${esc(sg.name)}</h3><div class="why" style="color:var(--warn);font-size:.85rem">${esc(sg.reason)}</div></div>
+      <ul class="items">${sg.idxs.map(i=>{const r=rows[i];return `<li><label class="check" style="font-weight:400;font-size:.88rem"><input type="checkbox" data-ssel="${esc(sg.id)}|${i}" ${ex.has(i)?"":"checked"}> <span>${esc(r.title)}</span></label></li>`}).join("")}</ul>
+      ${sg.type==="add"?`<label class="check" style="font-weight:400;font-size:.85rem"><input type="checkbox" data-srem="${esc(sg.id)}" ${ui.sr&&ui.sr[sg.id]===false?"":"checked"}> <span>Onthoud als kleur (voor volgende lijsten)</span></label>
+      <div class="row"><button class="small primary" data-sadd="${esc(sg.id)}">Toevoegen aan groep</button><button class="small" data-sdis="${esc(sg.id)}">Niet toevoegen</button></div>`
+      :`<div class="row"><button class="small primary" data-sacc="${esc(sg.id)}" data-kind="kv">Koppel als kleurvarianten</button><button class="small primary" data-sacc="${esc(sg.id)}" data-kind="si">Koppel als serie-items</button><button class="small" data-sdis="${esc(sg.id)}">Niet koppelen</button></div>`}
+    </article>`}).join("")}</div>`:""}
+    <div class="section-title" style="margin:18px 0 10px"><h2>Te controleren</h2><span class="meta">${open.length} producten</span></div>
+    <div class="issue-list">${open.length?open.map(r=>itemRow(r,`<div>${esc(r.title)}</div><div class="why">${r.issues.map(esc).join(" · ")}</div>`,
+      `<div class="row"><button class="small" data-goto="${r.idx}">Aanpassen</button><button class="small" data-ok="${r.idx}">Gecontroleerd</button></div>`)).join("")
+      :`<div class="empty">Niets meer te controleren.</div>`}</div>
+    ${single.length?`<div class="section-title" style="margin:22px 0 10px"><h2>Geen match in deze lijst</h2><span class="meta">${single.length} producten. Ook deze kun je aanvinken en zelf koppelen.</span></div>
+    <div class="issue-list">${single.map(r=>itemRow(r,`<div>${esc(r.title)}</div><div class="why">${esc(whyAlone(r).text)}</div>
+      <div class="meta">Gelezen als: ${esc([r.series&&"serie "+r.series,r.type&&"type "+r.type,r.model&&"model "+r.model,r.color&&"kleur "+r.color,r.size&&"maat "+r.size].filter(Boolean).join(" · "))}</div>`,
+      `<button class="small" data-goto="${r.idx}">Aanpassen</button>`,"single")).join("")}</div>`:""}`;
+}
+const FIELDS=[["series","Serie"],["type","Producttype"],["model","Model"],["color","Kleur"],["size","Maat"],["set","Uitvoering"]];
+function viewAll(){
+  $("#view").innerHTML=`<div class="toolbar"><span class="meta">Klik in een cel om te corrigeren. Groepen worden direct opnieuw berekend.</span></div>
+  <div class="table-wrap"><table><thead><tr><th>#</th>${rows.some(r=>r.id)?"<th>ID</th>":""}<th>Titel</th>${FIELDS.map(f=>`<th>${f[1]}</th>`).join("")}<th>Kleurvariant-groep</th><th>Serie-items-groep</th></tr></thead>
+  <tbody>${rows.map(r=>`<tr id="row-${r.idx}" class="${r.issues.length&&!checked.has(r.idx)?"flag":""}" title="${esc(r.issues.join(" · "))}">
+    <td class="mono">${r.idx+1}</td>${rows.some(x=>x.id)?`<td class="mono">${esc(r.id)}</td>`:""}<td class="title">${esc(r.title)}</td>
+    ${FIELDS.map(([f,l])=>`<td><input id="f-${r.idx}-${f}" data-idx="${r.idx}" data-field="${f}" value="${esc(r[f])}" aria-label="${l} van product ${r.idx+1}"></td>`).join("")}
+    ${r.parent!=null?`<td class="gcell" colspan="2">Maatvariant van #${r.parent+1}</td>`:`<td class="gcell">${esc(r.kv)}</td><td class="gcell">${esc(r.si)}</td>`}</tr>`).join("")}</tbody></table></div>`;
+}
+function exportText(onlyApproved){
+  const hasId=rows.some(r=>r.id);
+  const xk=[...new Set(rows.flatMap(r=>Object.keys(r.extra||{})))];
+  const head=[...(hasId?["ID"]:[]),...xk,"Titel","Merk","Serie","Producttype","Model","Kleur","Maat","Uitvoering","Kleurvariant-groep","Serie-items-groep","Status"];
+  const lines=[head.join("\t")];
+  rows.forEach(r=>{
+    const kv=onlyApproved&&!approved.has(r.kv)?"":r.kv, si=onlyApproved&&!approved.has(r.si)?"":r.si;
+    const status=r.parent!=null?"Maatvariant van "+(rows[r.parent].id||rows[r.parent].title):r.issues.length&&!checked.has(r.idx)?"Te controleren":((r.kv&&!approved.has(r.kv))||(r.si&&!approved.has(r.si)))?"Nog goedkeuren":(r.kv||r.si)?"Goedgekeurd":"Geen koppeling";
+    lines.push([...(hasId?[r.id]:[]),...xk.map(k=>r.extra[k]),r.title,r.brand,r.series,r.type,r.model,r.color,r.size,r.set,kv,si,status].map(v=>String(v||"").replace(/\t/g," ")).join("\t"));
+  });
+  return lines.join("\n");
+}
+let dl=null;
+/* Buiten Claude (bijv. op Vercel): bestanden direct via de browser opslaan */
+const browserDl={save:({filename,data})=>new Promise((res,rej)=>{try{const b=new Blob([data],{type:"text/csv;charset=utf-8"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);res()}catch(e){rej(e)}})};
+if(window.claude&&window.claude.use){try{window.claude.use("downloads").then(d=>{dl=d;if(current==="export")viewExport()},()=>{})}catch(e){}}
+else dl=browserDl;
+const KIND={kv:{title:"1. Kleurvarianten",file:"kleurvarianten",desc:"Eerste productgroep: zelfde product in andere kleuren."},
+            si:{title:"2. Serie-items",file:"serie-items",desc:"Tweede productgroep: andere producten uit dezelfde serie in dezelfde kleur."}};
+function csvFor(kind,onlyApproved,header){
+  const gs=groups[kind].filter(g=>!onlyApproved||approved.has(g.id));
+  const clean=v=>String(v||"").replace(/[;\r\n"]/g," ").replace(/\s+/g," ").trim();
+  const lines=header?["product_id;product_group"]:[]; let n=0,missing=0;
+  gs.forEach(g=>g.rows.forEach(r=>{if(!r.id){missing++;return} n++; lines.push(clean(r.id)+";"+clean(g.name))}));
+  return {text:lines.join("\r\n")+"\r\n",lines,n,missing,groups:gs.length};
+}
+function csvName(kind){
+  const b=(rows[0]&&rows[0].brand||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  const d=new Date(), dd=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  return `${KIND[kind].file}${b?"_"+b:""}_${dd}.csv`;
+}
+function viewExport(){
+  const only=load("onlyApproved",false), mode=load("exportMode","csv")==="full"?"full":"csv", hdr=load("csvHeader",true);
+  const radio=(name,val,cur,label)=>`<label class="check"><input type="radio" name="${name}" id="${name}-${val}" value="${val}" ${cur===val?"checked":""}> <span>${label}</span></label>`;
+  const head=`<div class="row" style="gap:18px">${radio("exportMode","csv",mode,"<b>CSV voor het CMS</b> (twee bestanden)")}${radio("exportMode","full",mode,"Volledig overzicht voor Excel")}</div>
+    <label class="check"><input type="checkbox" id="onlyApproved" ${only?"checked":""}> <span>Alleen goedgekeurde groepen meenemen</span></label>`;
+  if(mode==="csv"){
+    const card=k=>{const c=csvFor(k,only,hdr);return `<article class="card">
+      <div><h3>${KIND[k].title}</h3><div class="meta">${KIND[k].desc}</div></div>
+      <div class="meta"><b>${c.groups}</b> groepen · <b>${c.n}</b> producten${c.missing?` · <span style="color:var(--warn)"><b>${c.missing}</b> zonder product-ID overgeslagen</span>`:""}</div>
+      <div class="row"><button class="primary" data-dl="${k}" ${c.n?"":"disabled"}>${dl?"Download":"Kopieer"} ${esc(KIND[k].file)}.csv</button>${dl?`<button class="small" data-cp="${k}" ${c.n?"":"disabled"}>Kopieer tekst</button>`:""}</div>
+      <span id="st-${k}" class="meta" aria-live="polite"></span>
+      <pre class="csvprev mono">${esc(c.lines.slice(0,7).join("\n"))}${c.lines.length>7?"\n…":""}</pre>
+    </article>`};
+    $("#view").innerHTML=`<div class="toolbar"><span class="meta">Voer eerst bestand 1 in, daarna bestand 2. Elk bestand: puntkomma als scheidingsteken, UTF-8, alleen hoofdproducten.</span></div>
+    <div class="panel" style="display:grid;gap:14px">${head}
+      <label class="check"><input type="checkbox" id="csvHeader" ${hdr?"checked":""}> <span>Kopregel <span class="mono">product_id;product_group</span> bovenaan<br><span class="hint">Geeft het CMS een fout op de eerste regel, zet dit dan uit.</span></span></label>
+    </div>
+    <div class="cards" style="margin-top:12px">${card("kv")}${card("si")}</div>
+    ${dl?"":`<p class="hint" style="margin-top:10px">Downloaden is in deze weergave niet beschikbaar. De knop kopieert de tekst: plak die in Kladblok (Windows) of TextEdit (Mac, eerst Opmaak → Maak platte tekst) en sla op als <span class="mono">.csv</span> met codering UTF-8.</p>`}`;
+    return;
+  }
+  $("#view").innerHTML=`<div class="toolbar"><span class="meta">Kopieer de tabel en plak hem in Excel (cel A1).</span></div>
+  <div class="panel" style="display:grid;gap:14px">${head}
+    <div class="row"><button class="primary" id="copy">Kopieer tabel voor Excel</button><span class="meta">${rows.length} producten</span><span id="copied" class="meta" aria-live="polite"></span></div>
+    <textarea id="out" rows="12" readonly spellcheck="false">${esc(exportText(only))}</textarea>
+  </div>`;
+}
+function copyText(txt,done){
+  try{navigator.clipboard.writeText(txt).then(()=>done("Gekopieerd. Plak in Kladblok en sla op als .csv."),()=>done("Kopiëren werd geweigerd. Kies Volledig overzicht en kopieer daar handmatig."))}
+  catch(e){done("Kopiëren werd geweigerd.")}
+}
+
+function renderMapping(){
+  const m=$("#mapping"); if(!table||lastMeta.source!=="tabel"){m.hidden=true;return}
+  m.hidden=false;
+  m.innerHTML=`<div class="section-title"><h2>Kolommen</h2><span class="meta">Klopt een kolom niet? Kies hier wat erin staat. Prijs, voorraad en attributenset hoeven niet mee.</span></div>
+  <div class="map-grid">${table.head.map((h,i)=>{const ex=(table.data.find(r=>r[i])||[])[i]||"";
+    return `<label class="map" for="map-${i}"><span>${esc(h)}<span class="ex mono" title="${esc(ex)}">${esc(ex)||"&nbsp;"}</span></span>
+    <select id="map-${i}" data-map="${i}">${ROLES.map(([v,l])=>`<option value="${v}"${table.roles[i]===v?" selected":""}>${l}</option>`).join("")}</select></label>`}).join("")}</div>`;
+}
+
+/* ---------- Gebeurtenissen ---------- */
+function run(){
+  const {items,meta}=parseInput($("#input").value);
+  lastMeta=meta; approved.clear(); checked.clear(); manual=[]; sel.clear(); ui.mTyped=false; ui.msg=""; ui.sx={};
+  if(meta.source!=="tabel") table=null;
+  rows=items.length?analyzeAll(items,meta):[];
+  renderMapping();
+  const n=$("#notice");
+  if(!items.length){n.hidden=false;n.textContent="Geen producten gevonden. Plak een merkpagina, een lijst met titels of een tabel met een kolom 'Titel'."}
+  else{
+    const act=[]; const bi=norm($("#brandIn").value);
+    if(bi) act.push(`merknaam vastgezet op <b>${esc(bi)}</b>`);
+    if(list($("#extraColors").value).length) act.push("extra kleurnamen");
+    if(list($("#extraTypes").value).length) act.push("extra producttypes");
+    if($("#synonyms").value.trim()) act.push("kleuren die als hetzelfde tellen");
+    if($("#sizesTogether").checked) act.push("maten in één keuzemenu");
+    if(!$("#skipVariants").checked) act.push("maatvarianten niet overslaan");
+    const extra=(meta.noHeader?`<br><b>Geen kopregel gevonden.</b> De tool heeft zelf de titel- en ID-kolom gekozen; controleer dit bij Kolommen.`:"")
+      +(meta.skipped?`<br>${meta.skipped} regels buiten de tabel genegeerd (bijvoorbeeld oude tekst die nog in het veld stond).`:"")
+      +(act.length?`<br>Actieve instellingen: ${act.join(", ")}. <button class="linkbtn" data-reset="1">Instellingen terugzetten</button>`:"");
+    n.hidden=false;n.innerHTML=`${items.length} producten gelezen${meta.source==="pagina"?" uit een gekopieerde merkpagina":meta.source==="tabel"?" uit een tabel":""}${rows[0].brand?` · merk: <b>${esc(rows[0].brand)}</b>`:""}${rows.some(r=>r.colorLearned)?` · ${rows.filter(r=>r.colorLearned).length} kleuren herkend uit de lijst zelf`:""}${meta.source==="tabel"&&!rows[0].brand?` · <b>geen merk herkend</b>: plak bij voorkeur één merk tegelijk`:""}${meta.types.length?` · ${meta.types.length} producttypes en ${meta.series.length} series uit de filters overgenomen`:""}.${extra}`}
+  try{store("input",$("#input").value.length<300000?$("#input").value:"")}catch(e){}
+  regroup();
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button"); if(!t) return;
+  if(t.classList.contains("tab")){current=t.dataset.tab;document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b===t));render();return}
+  if(t.dataset.approve){const id=t.dataset.approve;approved.has(id)?approved.delete(id):approved.add(id);render();return}
+  if(t.dataset.bulk){groups[t.dataset.bulk].forEach(g=>t.dataset.on==="1"?approved.add(g.id):approved.delete(g.id));render();return}
+  if(t.dataset.tabgo){current=t.dataset.tabgo;document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===current));render();$("#view").scrollIntoView({block:"start"});return}
+  if(t.dataset.dl||t.dataset.cp){const k=t.dataset.dl||t.dataset.cp;const c=csvFor(k,load("onlyApproved",false),load("csvHeader",true));const st=$("#st-"+k);const msg=m=>{if(st)st.textContent=m};
+    if(t.dataset.dl&&dl){msg("Wacht op bevestiging…");
+      dl.save({filename:csvName(k),data:c.text}).then(()=>msg(`Opgeslagen als ${csvName(k)}.`),e=>{const code=e&&e.code;
+        if(code==="declined")msg("Niet opgeslagen.");else if(code==="rate_limited")msg("Er staat al een opslagvenster open. Probeer het zo opnieuw.");
+        else{msg("Downloaden lukt hier niet. De tekst is gekopieerd.");copyText(c.text,()=>{})}});}
+    else copyText(c.text,msg);
+    return}
+  if(t.dataset.reset){$("#brandIn").value="";$("#extraColors").value="";$("#extraTypes").value="";$("#synonyms").value="";$("#sizesTogether").checked=false;$("#skipVariants").checked=true;
+    ["brandIn","extraColors","extraTypes","synonyms"].forEach(k=>store(k,""));store("sizesTogether",false);store("skipVariants",true);run();return}
+  if(t.dataset.sadd){const sg=suggestions.find(x=>x.id===t.dataset.sadd);if(!sg)return;
+    const ex=ui.sx[sg.id]||new Set(), idxs=sg.idxs.filter(i=>!ex.has(i)); if(!idxs.length){ui.msg="Vink minstens één product aan.";viewCheck();return}
+    manual.push({id:"m"+Date.now(),kind:"kv",type:"add",gid:sg.gid,idxs});
+    let extra="";
+    if(!(ui.sr&&ui.sr[sg.id]===false)){const words=[...new Set(idxs.map(i=>rows[i].color).filter(Boolean))];
+      const cur=list($("#extraColors").value), add=words.filter(w=>!cur.map(low).includes(low(w)));
+      if(add.length){$("#extraColors").value=[...cur,...add].join(", ");store("extraColors",$("#extraColors").value);extra=` ${add.map(esc).join(", ")} staat nu bij Extra kleurnamen.`}}
+    ui.msg=`${idxs.length} product${idxs.length>1?"en":""} toegevoegd aan <b>${esc(sg.name)}</b>.${extra}`;delete ui.sx[sg.id];regroup();return}
+  if(t.dataset.sacc||t.dataset.sdis){const id=t.dataset.sacc||t.dataset.sdis;const sg=suggestions.find(x=>x.id===id);if(!sg)return;
+    const ex=ui.sx[id]||new Set(), idxs=sg.idxs.filter(i=>!ex.has(i));
+    if(t.dataset.sdis){manual.push({id:"m"+Date.now(),kind:"kv",type:"dismiss",idxs:sg.idxs,name:sg.name});ui.msg=`<b>${esc(sg.name)}</b> wordt niet gekoppeld.`;regroup();return}
+    if(idxs.length<2){ui.msg="Laat minstens 2 producten aangevinkt om te koppelen.";viewCheck();return}
+    const kind=t.dataset.kind, gid="M-"+kind.toUpperCase()+"-"+slug(sg.name)+"-"+Date.now().toString(36);
+    manual.push({id:"m"+Date.now(),kind,type:"new",gid,name:sg.name,idxs});
+    ui.msg=`<b>${esc(sg.name)}</b> gekoppeld als ${kind==="kv"?"kleurvarianten":"serie-items"} (${idxs.length} producten).`;delete ui.sx[id];regroup();return}
+  if(t.dataset.selall){[...openRows(),...singles()].forEach(r=>sel.add(r.idx));viewCheck();return}
+  if(t.dataset.selnone){sel.clear();ui.mTyped=false;viewCheck();return}
+  if(t.dataset.undo){manual=manual.filter(m=>m.id!==t.dataset.undo);ui.msg="Koppeling ongedaan gemaakt.";regroup();return}
+  if(t.dataset.mk){const idxs=[...sel];
+    if(t.dataset.mk==="add"){const g=groups[ui.aKind].find(x=>x.id===ui.aGroup);if(!g||!idxs.length)return;
+      manual.push({id:"m"+Date.now(),kind:ui.aKind,type:"add",gid:g.id,idxs});ui.msg=`${idxs.length} product${idxs.length>1?"en":""} toegevoegd aan <b>${esc(g.name)}</b>.`}
+    else{const name=norm(ui.mName);if(idxs.length<2){ui.msg="Kies minstens 2 producten voor een nieuwe groep.";viewCheck();return}
+      if(!name){ui.msg="Geef de groep een naam.";viewCheck();return}
+      const gid="M-"+ui.mKind.toUpperCase()+"-"+slug(name)+"-"+Date.now().toString(36);
+      manual.push({id:"m"+Date.now(),kind:ui.mKind,type:"new",gid,name,idxs});ui.msg=`Nieuwe groep <b>${esc(name)}</b> gemaakt met ${idxs.length} producten.`}
+    sel.clear();ui.mTyped=false;regroup();return}
+  if(t.dataset.ok){checked.add(+t.dataset.ok);regroup();return}
+  if(t.dataset.goto){const idx=t.dataset.goto;current="all";document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab==="all"));render();
+    const el=$("#row-"+idx);if(el){el.scrollIntoView({block:"center"});const i=el.querySelector("input");i&&i.focus()}return}
+  if(t.id==="run") return run();
+  if(t.id==="sample"){$("#input").value=SAMPLE;return run()}
+  if(t.id==="clear"){$("#input").value="";table=null;$("#mapping").hidden=true;rows=[];groups={kv:[],si:[]};approved.clear();checked.clear();$("#notice").hidden=true;store("input","");render();return}
+  if(t.id==="copy"){const txt=$("#out").value;const done=m=>$("#copied").textContent=m;
+    try{navigator.clipboard.writeText(txt).then(()=>done("Gekopieerd. Plak in Excel in cel A1."),()=>{$("#out").select();done("Kopiëren niet toegestaan; tekst is geselecteerd, gebruik Ctrl/Cmd+C.")})}
+    catch(err){$("#out").select();done("Tekst is geselecteerd, gebruik Ctrl/Cmd+C.")}}
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset&&el.dataset.srem){ui.sr=ui.sr||{};ui.sr[el.dataset.srem]=el.checked;return}
+  if(el.dataset&&el.dataset.ssel){const [id,i]=el.dataset.ssel.split("|");const ex=ui.sx[id]||(ui.sx[id]=new Set());el.checked?ex.delete(+i):ex.add(+i);return}
+  if(el.dataset&&el.dataset.sel!==undefined){const i=+el.dataset.sel;el.checked?sel.add(i):sel.delete(i);ui.msg="";viewCheck();return}
+  if(el.id==="aKind"){ui.aKind=el.value;ui.aGroup="";viewCheck();return}
+  if(el.id==="aGroup"){ui.aGroup=el.value;return}
+  if(el.id==="mKind"){ui.mKind=el.value;return}
+  if(el.dataset&&el.dataset.map!==undefined){table.roles[+el.dataset.map]=el.value;run();return}
+  if(el.dataset&&el.dataset.field){const r=rows[+el.dataset.idx];r[el.dataset.field]=norm(el.value);if(el.dataset.field==="color"){r.colorUnsure=false;r.colorLearned=false}
+    const id=el.id;regroup();const again=document.getElementById(id);if(again)again.focus();return}
+  if(el.id==="onlyApproved"||el.id==="csvHeader"){store(el.id,el.checked);viewExport();return}
+  if(el.name==="exportMode"){store(el.name,el.value);viewExport();return}
+  if(el.id==="skipVariants"||el.id==="brandIn"){store(el.id,el.id==="brandIn"?el.value:el.checked);if(rows.length)run();return}
+  if(el.id==="sizesTogether"){store("sizesTogether",el.checked);if(rows.length)regroup();return}
+  if(["synonyms","extraColors","extraTypes"].includes(el.id)){store(el.id,el.value);if(rows.length){el.id==="synonyms"?regroup():run()}}
+});
+document.addEventListener("input",e=>{if(e.target.id==="mName"){ui.mName=e.target.value;ui.mTyped=true}});
+$("#input").addEventListener("paste",e=>{
+  const txt=(e.clipboardData&&e.clipboardData.getData("text"))||"";
+  const ta=$("#input"), firstLine=(txt.split(/\r?\n/).find(l=>l.trim())||"");
+  const isTable=firstLine.includes("\t")||/titel|title|naam|product|\bid\b/i.test(firstLine)&&firstLine.includes(";");
+  if(txt&&(isTable||ta.value===SAMPLE||!ta.value.trim())){e.preventDefault();ta.value=txt;table=null;run()}
+  else setTimeout(run,0);
+});
+$("#sizesTogether").checked=load("sizesTogether",false);
+$("#skipVariants").checked=load("skipVariants",true); $("#brandIn").value=load("brandIn","");
+["synonyms","extraColors","extraTypes"].forEach(k=>$("#"+k).value=load(k,""));
+$("#input").value=load("input","")||SAMPLE;
+run();
+</script>
+
+</body></html>
